@@ -36,24 +36,26 @@ public class QueryParser {
             System.out.println("\n" + list.get(index - 1));
         }
 
+        label:
         while (true) {
             String choice = getChoice();
-            if (choice.equals("1")) {
-                queryData();
-            }
-            else if (choice.equals("2")) {
-                int indexz = getParts();
-                if (indexz == 0) {
-                    getAllList();
-                } else {
-                    System.out.println("\n" + list.get(indexz - 1));
-                }
-            }
-            else if (choice.equals("3")) {
-                break;
-            }
-            else {
-                System.out.println("Please enter correct option");
+            switch (choice) {
+                case "1":
+                    queryData();
+                    break;
+                case "2":
+                    int in = getParts();
+                    if (in == 0) {
+                        getAllList();
+                    } else {
+                        System.out.println("\n" + list.get(in - 1));
+                    }
+                    break;
+                case "3":
+                    break label;
+                default:
+                    System.out.println("Please enter correct option");
+                    break;
             }
         }
     }
@@ -65,16 +67,14 @@ public class QueryParser {
     }
 
     public String getChoice() {
-        String choice = Input.getLine("Select \n1 -> Write Query\n2 -> Get List\n3 -> exit");
-        return choice;
+        return Input.getLine("Select \n1 -> Write Query\n2 -> Get List\n3 -> exit");
     }
 
     public int getParts() {
-        int choice = Input.getChoice("Select \n0 -> All List\n1 -> Tables\n2 -> Joins\n3 -> Columns\n4 -> Conditions\n5 -> Functions\n6 -> FunctionColumns" +
+        return Input.getChoice("Select \n0 -> All List\n1 -> Tables\n2 -> Joins\n3 -> Columns\n4 -> Conditions\n5 -> Functions\n6 -> FunctionColumns" +
                 "\n7 -> GroupBy Columns\n8 -> GroupBy Criteria\n9 -> OrderBy Columns\n10 -> Sub Tables\n11 -> Sub Joins\n12 -> Sub Columns" +
                 "\n13 -> Sub Functions\n14 -> Sub FunctionColumns\n15 -> Having Criteria\n16 -> Aliases\n" +
                 "17 -> Sub Aliases\nEnter Option -> ", 0, list.size());
-        return choice;
     }
 
     public void controller() {
@@ -84,14 +84,12 @@ public class QueryParser {
     }
 
     public String getInput() {
-        String query = Input.getLine("Enter the Select Query");
-        return query;
+        return Input.getLine("Enter the Select Query");
     }
 
     public Statement getStatement(String query) {
         try {
-            Statement smt = CCJSqlParserUtil.parse(query);
-            return smt;
+            return CCJSqlParserUtil.parse(query);
         }
         catch (JSQLParserException e) {
             System.out.println(e.getMessage());
@@ -115,16 +113,6 @@ public class QueryParser {
     }
 
     public void printLayer(QueryLayer layer, int level) {
-      /*  System.out.println("\nLevel " + level);
-
-        for (QueryField field : layer.getFields()) {
-            System.out.println(field.getName() + " -> " + field.getValues());
-        }
-
-        for (QueryLayer sub : layer.subLayers) {
-            printLayer(sub, level + 1);
-        }
-       */
         System.out.println("\nLEVEL " + level);
 
         for (QueryNode<?> node : layer.getNodes()) {
@@ -136,3 +124,13 @@ public class QueryParser {
         }
     }
 }
+      /*  System.out.println("\nLevel " + level);
+
+        for (QueryField field : layer.getFields()) {
+            System.out.println(field.getName() + " -> " + field.getValues());
+        }
+
+        for (QueryLayer sub : layer.subLayers) {
+            printLayer(sub, level + 1);
+        }
+       */

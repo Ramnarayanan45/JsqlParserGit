@@ -117,7 +117,22 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(SetOperationList setOpList, S context) {
-        return null;
+        QueryLayer parentLayer=(QueryLayer)context;
+        QueryLayer subLayer=new QueryLayer();
+
+        if(parentLayer!=null){
+            parentLayer.subLayers.add(subLayer);
+        }
+
+        if (setOpList != null && setOpList.getSelects() != null) {
+            for (Select select : setOpList.getSelects()) {
+                if (select != null) {
+                    select.accept(this, subLayer);
+                }
+            }
+        }
+
+        return subLayer;
     }
 
     @Override

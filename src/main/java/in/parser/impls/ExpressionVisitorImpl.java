@@ -131,14 +131,14 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
     public <S> QueryLayer visit(Addition addition, S context) {
         addition.getLeftExpression().accept(this, context);
         addition.getRightExpression().accept(this, context);
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(Division division, S context) {
         division.getLeftExpression().accept(this, context);
         division.getRightExpression().accept(this, context);
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
@@ -150,28 +150,28 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
     public <S> QueryLayer visit(Multiplication multiplication, S context) {
         multiplication.getLeftExpression().accept(this, context);
         multiplication.getRightExpression().accept(this, context);
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(Subtraction subtraction, S context) {
         subtraction.getLeftExpression().accept(this, context);
         subtraction.getRightExpression().accept(this, context);
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(AndExpression andExpression, S context) {
         andExpression.getLeftExpression().accept(this, context);
         andExpression.getRightExpression().accept(this, context);
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(OrExpression orExpression, S context) {
         orExpression.getLeftExpression().accept(this, context);
         orExpression.getRightExpression().accept(this, context);
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
@@ -420,7 +420,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
         if (caseExpression.getElseExpression() != null) {
             caseExpression.getElseExpression().accept(this, context);
         }
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
@@ -432,7 +432,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
         if (whenClause.getThenExpression() != null) {
             whenClause.getThenExpression().accept(this, context);
         }
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
@@ -447,7 +447,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
             existsExpression.getRightExpression().accept(this,context);
         }
 
-        return null;
+        return layer;
     }
 
     @Override
@@ -547,10 +547,10 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(ExpressionList<? extends Expression> expressionList, S context) {
-        if (expressionList != null && expressionList.getExpressions() != null) {
-            for (Object obj : expressionList.getExpressions()) {
-                if (obj instanceof Expression e) {
-                    e.accept(this, context);
+        if (expressionList != null) {
+            for (Expression expression : expressionList) {
+                if (expression != null) {
+                    expression.accept(this, context);
                 }
             }
         }
@@ -656,7 +656,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
     public <S> QueryLayer visit(AllColumns allColumns, S context) {
         QueryLayer layer = (QueryLayer) context;
         if (layer != null) {
-            layer.add("columns", "*");
+            layer.add("Columns", "*");
         }
         return layer;
     }
@@ -718,7 +718,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
         if(trimFunction.getExpression()!=null){
             trimFunction.getExpression().accept(this,context);
         }
-        return null;
+        return layer;
     }
 
     @Override
@@ -787,13 +787,13 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
     public <S> QueryLayer visit(LambdaExpression lambdaExpression, S context) {
         QueryLayer layer=(QueryLayer)context;
         if(layer!=null){
-            layer.add("Lamda Expression",lambdaExpression.toString());
+            layer.add("Lambda Expression",lambdaExpression.toString());
         }
 
         if(lambdaExpression.getExpression()!=null){
             lambdaExpression.getExpression().accept(this,context);
         }
-        return null;
+        return layer;
     }
 
     @Override
@@ -834,7 +834,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
         if(plus.getRightExpression()!=null){
             plus.getRightExpression().accept(this,context);
         }
-        return null;
+        return layer;
     }
 
     @Override
@@ -853,7 +853,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
             priorTo.getRightExpression().accept(this,context);
         }
 
-        return null;
+        return layer;
     }
 
     @Override
@@ -867,7 +867,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
         if(inverse.getExpression()!=null){
             inverse.getExpression().accept(this,context);
         }
-        return null;
+        return layer;
     }
 
     @Override
@@ -884,23 +884,21 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
         if(cosineSimilarity.getRightExpression()!=null){
             cosineSimilarity.getRightExpression().accept(this,context);
         }
-        return null;
+        return layer;
     }
 
     @Override
     public <S> QueryLayer visit(FromQuery fromQuery, S context) {
         QueryLayer parentLayer=(QueryLayer)context;
-        QueryLayer subLayer=new QueryLayer();
         if(parentLayer!=null){
             parentLayer.add("FromQuery",fromQuery.toString());
         }
-        return null;
+        return parentLayer;
     }
 
     @Override
     public <S> QueryLayer visit(Concat concat, S context) {
         QueryLayer parentLayer=(QueryLayer) context;
-        QueryLayer subLayer=new QueryLayer();
         if(parentLayer!=null){
           parentLayer.add("Concat",concat.toString());
         }
@@ -910,7 +908,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
         if(concat.getRightExpression()!=null){
             concat.getRightExpression().accept(this,context);
         }
-        return null;
+        return parentLayer;
     }
 }
 
