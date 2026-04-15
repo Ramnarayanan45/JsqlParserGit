@@ -97,8 +97,7 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
             }
         }
 
-        if (plainSelect.getGroupBy() != null &&
-                plainSelect.getGroupBy().getGroupByExpressionList() != null) {
+        if (plainSelect.getGroupBy() != null && plainSelect.getGroupBy().getGroupByExpressionList() != null) {
             ExpressionVisitorImpl groupExpr = new ExpressionVisitorImpl();
             GroupByVisitorImpl groupByVisitor = new GroupByVisitorImpl(groupExpr);
             plainSelect.getGroupBy().accept(groupByVisitor, context);
