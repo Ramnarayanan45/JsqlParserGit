@@ -36,8 +36,7 @@ public class QueryParser {
             System.out.println("\n" + list.get(index - 1));
         }
 
-        label:
-        while (true) {
+        label: while (true) {
             String choice = getChoice();
             switch (choice) {
                 case "1":
