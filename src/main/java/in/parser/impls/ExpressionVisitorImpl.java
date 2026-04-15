@@ -21,6 +21,12 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
         this.isOrderBy = false;
     }
 
+    public ExpressionVisitorImpl(boolean isWhere) {
+        this.isWhere = isWhere;
+        this.isGroupBy = false;
+        this.isOrderBy = false;
+    }
+
     public ExpressionVisitorImpl(boolean isWhere, boolean isGroupBy, boolean isOrderBy) {
         this.isWhere = isWhere;
         this.isGroupBy = isGroupBy;

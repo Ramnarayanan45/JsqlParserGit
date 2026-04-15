@@ -99,26 +99,16 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
 
         if (plainSelect.getGroupBy() != null &&
                 plainSelect.getGroupBy().getGroupByExpressionList() != null) {
-
-            if (currentLayer != null) {
-                currentLayer.add("GroupByCriteria", plainSelect.getGroupBy().toString());
-            }
             ExpressionVisitorImpl groupExpr = new ExpressionVisitorImpl(false, true, false);
-
-            for (Object obj : plainSelect.getGroupBy().getGroupByExpressionList()) {
-                if (obj instanceof Expression exp) {
-                    exp.accept(groupExpr, context);
-                }
-            }
+            GroupByVisitorImpl groupByVisitor = new GroupByVisitorImpl(groupExpr);
+            plainSelect.getGroupBy().accept(groupByVisitor, context);
         }
 
         if (plainSelect.getOrderByElements() != null) {
             ExpressionVisitorImpl orderExpr = new ExpressionVisitorImpl(false, false, true);
-
+            OrderByVisitorImpl orderByVisitor = new OrderByVisitorImpl(orderExpr);
             for (OrderByElement ob : plainSelect.getOrderByElements()) {
-                if (ob.getExpression() != null) {
-                    ob.getExpression().accept(orderExpr, context);
-                }
+                ob.accept(orderByVisitor, context);
             }
         }
 
