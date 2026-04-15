@@ -1,11 +1,11 @@
 package in.parser.impls;
 
-import in.parser.QueryLayer;
+import in.parser.queryparser.QueryLayer;
 import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.arithmetic.*;
 import net.sf.jsqlparser.expression.operators.conditional.*;
 import net.sf.jsqlparser.expression.operators.relational.*;
-import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.schema.*;
 import net.sf.jsqlparser.statement.piped.FromQuery;
 import net.sf.jsqlparser.statement.select.*;
 
@@ -25,6 +25,18 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
         this.isWhere = isWhere;
         this.isGroupBy = isGroupBy;
         this.isOrderBy = isOrderBy;
+    }
+
+    public String getColumnName(Column column) {
+        if (column == null) {
+            return "";
+        }
+        String columnName = column.getColumnName();
+        Table table = column.getTable();
+        if (table != null && table.getName() != null && !table.getName().isBlank()) {
+            return table.getName() + "." + columnName;
+        }
+        return columnName;
     }
 
     @Override
@@ -388,7 +400,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
     public <S> QueryLayer visit(Column column, S context) {
         QueryLayer layer = (QueryLayer) context;
         if (layer != null) {
-            String col = column.getColumnName();
+            String col = getColumnName(column);
             if (isWhere) {
                 layer.add("Condition_Columns", col);
             }

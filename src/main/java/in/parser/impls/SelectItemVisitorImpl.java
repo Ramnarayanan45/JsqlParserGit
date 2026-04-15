@@ -1,6 +1,6 @@
 package in.parser.impls;
 
-import in.parser.*;
+import in.parser.queryparser.QueryLayer;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.select.*;
 

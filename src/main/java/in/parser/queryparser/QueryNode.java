@@ -1,4 +1,4 @@
-package in.parser;
+package in.parser.queryparser;
 
 public class QueryNode<T> {
 
@@ -23,7 +23,6 @@ public class QueryNode<T> {
         if (value == null) {
             return "";
         }
-
         return value.toString(); 
     }
 

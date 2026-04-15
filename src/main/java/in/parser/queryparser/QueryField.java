@@ -1,4 +1,4 @@
-package in.parser;
+package in.parser.queryparser;
 import java.util.*;
 
 public class QueryField {

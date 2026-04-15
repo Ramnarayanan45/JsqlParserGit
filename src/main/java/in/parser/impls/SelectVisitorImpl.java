@@ -1,12 +1,12 @@
 package in.parser.impls;
 
-import in.parser.*;
+import in.parser.queryparser.QueryLayer;
 import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.piped.FromQuery;
 import net.sf.jsqlparser.statement.select.*;
-import java.util.*;
 
 public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
 
@@ -24,6 +24,38 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
         this.fv = fromVisitor;
         this.sv = selectItemVisitor;
         this.exv = exprVisitor;
+    }
+
+    public String resolveFromItemName(FromItem item, boolean useAliasIfPresent) {
+        if (item instanceof Table table) {
+            if (useAliasIfPresent && table.getAlias() != null && table.getAlias().getName() != null && !table.getAlias().getName().isBlank()){
+                return table.getAlias().getName();
+            }
+            return table.getName();
+        }
+        if (item instanceof ParenthesedSelect parenthesedSelect && parenthesedSelect.getAlias() != null && parenthesedSelect.getAlias().getName() != null && !parenthesedSelect.getAlias().getName().isBlank()) {
+            return parenthesedSelect.getAlias().getName();
+        }
+        return ""+item;
+    }
+
+    public String resolveJoinType(Join join) {
+        if (join.isLeft()) {
+            return "LEFT JOIN";
+        }
+        if (join.isRight()) {
+            return "RIGHT JOIN";
+        }
+        if (join.isFull()) {
+            return "FULL JOIN";
+        }
+        if (join.isInnerJoin()) {
+            return "INNER JOIN";
+        }
+        if (join.isCross()) {
+            return "CROSS JOIN";
+        }
+        return "JOIN";
     }
 
     @Override
@@ -47,13 +79,21 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
         }
 
         if (plainSelect.getJoins() != null) {
+            String currentLeft = resolveFromItemName(plainSelect.getFromItem(), false);
             for (Join join : plainSelect.getJoins()) {
+                String right = resolveFromItemName(join.getRightItem(), false);
                 if (currentLayer != null) {
-                    currentLayer.add("Joins", join.toString());
+                    currentLayer.add("Joins", currentLeft + " " + resolveJoinType(join) + " " + right);
+                    if (join.getOnExpressions() != null) {
+                        for (Expression onExpression : join.getOnExpressions()) {
+                            currentLayer.add("Join_Conditions", onExpression.toString());
+                        }
+                    }
                 }
                 if (join.getRightItem() != null) {
                     join.getRightItem().accept(fv, context);
                 }
+                currentLeft = right;
             }
         }
 

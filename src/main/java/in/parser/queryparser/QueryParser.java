@@ -1,4 +1,4 @@
-package in.parser;
+package in.parser.queryparser;
 
 import in.parser.impls.*;
 import in.parser.util.Input;
@@ -47,7 +47,8 @@ public class QueryParser {
                     int in = getParts();
                     if (in == 0) {
                         getAllList();
-                    } else {
+                    }
+                    else {
                         System.out.println("\n" + list.get(in - 1));
                     }
                     break;
@@ -109,7 +110,6 @@ public class QueryParser {
         StatementVisitorImpl stmt = new StatementVisitorImpl(sel);
         statement.accept(stmt, root);
         printLayer(root, 1);
-
     }
 
     public void printLayer(QueryLayer layer, int level) {
@@ -124,13 +124,10 @@ public class QueryParser {
         }
     }
 }
-      /*  System.out.println("\nLevel " + level);
-
-        for (QueryField field : layer.getFields()) {
-            System.out.println(field.getName() + " -> " + field.getValues());
-        }
-
-        for (QueryLayer sub : layer.subLayers) {
-            printLayer(sub, level + 1);
-        }
-       */
+//      System.out.println("\nLevel " + level);
+//        for (QueryField field : layer.getFields()) {
+//         System.out.println(field.getName() + " -> " + field.getValues());
+//     }
+//      for (QueryLayer sub : layer.subLayers) {
+//      printLayer(sub, level + 1);
+//     }

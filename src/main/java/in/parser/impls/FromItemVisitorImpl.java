@@ -1,6 +1,6 @@
 package in.parser.impls;
 
-import in.parser.*;
+import in.parser.queryparser.QueryLayer;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.piped.FromQuery;
 import net.sf.jsqlparser.statement.select.*;
@@ -70,11 +70,6 @@ public class FromItemVisitorImpl implements FromItemVisitor<QueryLayer> {
         return null;
     }
 
-    /**
-     *  Parses FROM subquery (PlainSelect) into a subquery layer.
-     * Example: SELECT * FROM (SELECT id FROM users) u;
-     */
-
     @Override
     public <S> QueryLayer visit(PlainSelect plainSelect, S context) {
         QueryLayer parentLayer = (QueryLayer) context;
@@ -89,11 +84,6 @@ public class FromItemVisitorImpl implements FromItemVisitor<QueryLayer> {
 
         return subLayer;
     }
-
-    /**
-     * Parses SetOperationList (UNION/INTERSECT/EXCEPT) queries into one logical subquery layer.
-     * SELECT * FROM A UNION SELECT * FROM B;
-     */
 
     @Override
     public <S> QueryLayer visit(SetOperationList setOperationList, S context) {

@@ -35,7 +35,7 @@ public class QueryLayer {
         return fields;
     }
 }*/
-package in.parser;
+package in.parser.queryparser;
 
 import java.util.*;
 
@@ -54,6 +54,4 @@ public class QueryLayer {
     public List<QueryNode<?>> getNodes() {
         return nodes;
     }
-
-
 }
