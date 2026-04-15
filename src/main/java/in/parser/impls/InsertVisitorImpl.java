@@ -6,7 +6,6 @@ import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.schema.*;
 import net.sf.jsqlparser.statement.select.*;
 
-import net.sf.jsqlparser.expression.operators.relational.ParenthesedExpressionList;
 
 public class InsertVisitorImpl {
     SelectVisitorImpl sv;
@@ -19,17 +18,27 @@ public class InsertVisitorImpl {
         QueryLayer layer = (QueryLayer) context;
 
         if (columns != null) {
+            int j=columns.size();
             ExpressionList<?> val=values.getExpressions();
-            System.out.println(columns.get(0));
-            for (int i = 0; i< columns.size(); i++) {
-                layer.add("Columns", columns.get(i).getColumnName());
-                layer.add("Values",val.get(i));
+            for (Column column : columns) {
+                layer.add("Columns", column.getColumnName());
+            }
+            if(val.size()==j) {
+                for (int i = 0; i < val.size(); i++) {
+                    layer.add("Values", columns.get(i).getColumnName() + "." + val.get(i));
+                }
+            }
+            else {
+                for (Expression expression : val) {
+                    String[] value = ("" + expression).replaceAll("[()]", "").split(", ");
+                    for (int k = 0; k < value.length; k++) {
+                        layer.add("Values", columns.get(k).getColumnName() + "." + value[k]);
+                    }
+                }
             }
         }
         return layer;
     }
-
-
 
     public <S> QueryLayer visit(Table tableName, S context){
         QueryLayer layer=(QueryLayer)context;
@@ -58,6 +67,5 @@ public class InsertVisitorImpl {
         select.accept(sv, context);
         return (QueryLayer) context;
     }
-
 
 }
