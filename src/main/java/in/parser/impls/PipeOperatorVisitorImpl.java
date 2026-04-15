@@ -14,6 +14,7 @@ public class PipeOperatorVisitorImpl implements PipeOperatorVisitor<QueryLayer,Q
     @Override
     public QueryLayer visit(AsPipeOperator as, QueryLayer context) {
         QueryLayer layer=context;
+        layer.add("PipeOperator",as.toString());
         return layer;
     }
 
@@ -38,18 +39,21 @@ public class PipeOperatorVisitorImpl implements PipeOperatorVisitor<QueryLayer,Q
     @Override
     public QueryLayer visit(JoinPipeOperator join, QueryLayer context) {
         QueryLayer layer=context;
+        layer.add("Pivot Join",join.getJoin());
         return layer;
     }
 
     @Override
     public QueryLayer visit(LimitPipeOperator limit, QueryLayer context) {
         QueryLayer layer=context;
+        layer.add("Pivot Limit",limit.getLimitExpression());
         return layer;
     }
 
     @Override
     public QueryLayer visit(OrderByPipeOperator orderBy, QueryLayer context) {
         QueryLayer layer=context;
+        layer.add("Pivot Order",orderBy.getOrderByElements());
         return layer;
     }
 
@@ -68,6 +72,7 @@ public class PipeOperatorVisitorImpl implements PipeOperatorVisitor<QueryLayer,Q
     @Override
     public QueryLayer visit(SelectPipeOperator select, QueryLayer context) {
         QueryLayer layer=context;
+        layer.add("Select Items",select.getSelectItems());
         return layer;
     }
 

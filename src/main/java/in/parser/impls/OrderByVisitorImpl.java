@@ -16,6 +16,7 @@ public class OrderByVisitorImpl implements OrderByVisitor<QueryLayer> {
         if (layer == null || orderBy == null) {
             return layer;
         }
+        layer.add("OrderByColumn",orderBy.toString());
         if(orderBy.isAsc()){
             layer.add("OrderByOrder", "Asc");
         }

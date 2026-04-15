@@ -11,28 +11,6 @@ import net.sf.jsqlparser.statement.select.*;
 
 public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
-    boolean isWhere;
-    boolean isGroupBy;
-    boolean isOrderBy;
-
-    public ExpressionVisitorImpl() {
-        this.isWhere = false;
-        this.isGroupBy = false;
-        this.isOrderBy = false;
-    }
-
-    public ExpressionVisitorImpl(boolean isWhere) {
-        this.isWhere = isWhere;
-        this.isGroupBy = false;
-        this.isOrderBy = false;
-    }
-
-    public ExpressionVisitorImpl(boolean isWhere, boolean isGroupBy, boolean isOrderBy) {
-        this.isWhere = isWhere;
-        this.isGroupBy = isGroupBy;
-        this.isOrderBy = isOrderBy;
-    }
-
     public String getColumnName(Column column) {
         if (column == null) {
             return "";
@@ -407,18 +385,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
         QueryLayer layer = (QueryLayer) context;
         if (layer != null) {
             String col = getColumnName(column);
-            if (isWhere) {
-                layer.add("Condition_Columns", col);
-            }
-            else if (isGroupBy) {
-                layer.add("GroupByColumns", col);
-            }
-            else if (isOrderBy) {
-                layer.add("OrderByColumns", col);
-            }
-            else {
-                layer.add("Columns", col);
-            }
+            layer.add("Columns", col);
         }
         return layer;
     }

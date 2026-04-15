@@ -5,7 +5,7 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.select.*;
 
 public class GroupByVisitorImpl implements GroupByVisitor<QueryLayer> {
-    private final ExpressionVisitorImpl expressionVisitor;
+    ExpressionVisitorImpl expressionVisitor;
 
     public GroupByVisitorImpl(ExpressionVisitorImpl expressionVisitor) {
         this.expressionVisitor = expressionVisitor;

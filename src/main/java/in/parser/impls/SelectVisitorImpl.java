@@ -74,7 +74,7 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
         }
 
         if (plainSelect.getWhere() != null) {
-            ExpressionVisitorImpl whereExpr = new ExpressionVisitorImpl(true, false, false);
+            ExpressionVisitorImpl whereExpr = new ExpressionVisitorImpl();
             plainSelect.getWhere().accept(whereExpr, context);
         }
 
@@ -99,13 +99,13 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
 
         if (plainSelect.getGroupBy() != null &&
                 plainSelect.getGroupBy().getGroupByExpressionList() != null) {
-            ExpressionVisitorImpl groupExpr = new ExpressionVisitorImpl(false, true, false);
+            ExpressionVisitorImpl groupExpr = new ExpressionVisitorImpl();
             GroupByVisitorImpl groupByVisitor = new GroupByVisitorImpl(groupExpr);
             plainSelect.getGroupBy().accept(groupByVisitor, context);
         }
 
         if (plainSelect.getOrderByElements() != null) {
-            ExpressionVisitorImpl orderExpr = new ExpressionVisitorImpl(false, false, true);
+            ExpressionVisitorImpl orderExpr = new ExpressionVisitorImpl();
             OrderByVisitorImpl orderByVisitor = new OrderByVisitorImpl(orderExpr);
             for (OrderByElement ob : plainSelect.getOrderByElements()) {
                 ob.accept(orderByVisitor, context);
