@@ -152,7 +152,6 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
         if(parentLayer!=null){
             parentLayer.subLayers.add(subLayer);
         }
-
         if (setOpList != null && setOpList.getSelects() != null) {
             for (Select select : setOpList.getSelects()) {
                 if (select != null) {
@@ -160,7 +159,6 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
                 }
             }
         }
-
         return subLayer;
     }
 

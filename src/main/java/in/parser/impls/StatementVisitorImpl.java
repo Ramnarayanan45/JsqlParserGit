@@ -1,6 +1,7 @@
 package in.parser.impls;
 
 import in.parser.queryparser.QueryLayer;
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.*;
 import net.sf.jsqlparser.statement.alter.*;
 import net.sf.jsqlparser.statement.alter.sequence.AlterSequence;
@@ -28,9 +29,11 @@ import net.sf.jsqlparser.statement.upsert.Upsert;
 
 public class StatementVisitorImpl implements StatementVisitor<QueryLayer> {
     SelectVisitorImpl sv;
+    InsertVisitorImpl iv;
 
-    public StatementVisitorImpl(SelectVisitorImpl sv) {
-        this.sv = sv;
+    public StatementVisitorImpl(SelectVisitorImpl sv){
+        this.sv=sv;
+        iv=new InsertVisitorImpl(sv);
     }
 
     @Override
@@ -70,7 +73,28 @@ public class StatementVisitorImpl implements StatementVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(Insert insert, S context) {
-        return null;
+            QueryLayer layer = (QueryLayer) context;
+            if (insert.getTable() != null) {
+                iv.visit(insert.getTable(),layer);
+            }
+
+            if (insert.getColumns() != null && insert.getValues() != null) {
+                iv.visit(insert.getColumns(), insert.getValues(), layer);
+            }
+            else {
+                if (insert.getColumns() != null) {
+                    iv.visit(insert.getColumns(), layer);
+                }
+
+                if (insert.getValues() != null) {
+                    iv.visit(insert.getValues(), layer);
+                }
+            }
+
+            if (insert.getSelect() != null) {
+                iv.visit(insert.getSelect(),layer);
+            }
+        return layer;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package in.parser.impls;
 
 import in.parser.queryparser.QueryLayer;
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.piped.FromQuery;
 import net.sf.jsqlparser.statement.select.*;
@@ -52,22 +53,32 @@ public class FromItemVisitorImpl implements FromItemVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(LateralSubSelect lateralSubSelect, S context) {
+        System.out.println(lateralSubSelect);
         return null;
     }
 
     @Override
     public <S> QueryLayer visit(TableFunction tableFunction, S context) {
+        System.out.println(tableFunction);
         return null;
     }
 
     @Override
     public <S> QueryLayer visit(ParenthesedFromItem parenthesedFromItem, S context) {
+        System.out.println(parenthesedFromItem);
         return null;
     }
 
     @Override
     public <S> QueryLayer visit(Values values, S context) {
-        return null;
+        QueryLayer layer = (QueryLayer) context;
+
+        if (values.getExpressions() != null) {
+            for (Expression row : values.getExpressions()) {
+                row.accept(new ExpressionVisitorImpl(), context);
+            }
+        }
+        return layer;
     }
 
     @Override
@@ -107,12 +118,14 @@ public class FromItemVisitorImpl implements FromItemVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(TableStatement tableStatement, S context) {
+        System.out.println(tableStatement);
         return null;
     }
 
 
     @Override
     public <S> QueryLayer visit(FromQuery fromQuery, S context) {
+        System.out.println(fromQuery);
         return null;
     }
 }

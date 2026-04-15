@@ -84,7 +84,7 @@ public class QueryParser {
     }
 
     public String getInput() {
-        return Input.getLine("Enter the Select Query");
+        return Input.getLine("Enter the Query");
     }
 
     public Statement getStatement(String query) {
