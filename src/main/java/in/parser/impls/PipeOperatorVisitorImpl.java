@@ -7,108 +7,103 @@ public class PipeOperatorVisitorImpl implements PipeOperatorVisitor<QueryLayer,Q
 
     @Override
     public QueryLayer visit(AggregatePipeOperator aggregate, QueryLayer context) {
-        QueryLayer layer=context;
-        return layer;
+        context.add("Aggregate Columns",aggregate.getSelectItems());
+        return context;
     }
 
     @Override
     public QueryLayer visit(AsPipeOperator as, QueryLayer context) {
-        QueryLayer layer=context;
-        layer.add("PipeOperator",as.toString());
-        return layer;
+        context.add("PipeOperator",as.toString());
+        return context;
     }
 
     @Override
     public QueryLayer visit(CallPipeOperator call, QueryLayer context) {
-        QueryLayer layer=context;
-        return layer;
+        context.add("Call Pipe Ope",call.getTableFunction());
+        return context;
     }
 
     @Override
     public QueryLayer visit(DropPipeOperator drop, QueryLayer context) {
-        QueryLayer layer=context;
-        return layer;
+        context.add("PipeDrop",drop.toString());
+        return context;
     }
 
     @Override
     public QueryLayer visit(ExtendPipeOperator extend, QueryLayer context) {
-        QueryLayer layer=context;
-        return layer;
+        context.add("Extend Pipe",extend.toString());
+        return context;
     }
 
     @Override
     public QueryLayer visit(JoinPipeOperator join, QueryLayer context) {
-        QueryLayer layer=context;
-        layer.add("Pivot Join",join.getJoin());
-        return layer;
+        context.add("Pivot Join",join.getJoin());
+        return context;
     }
 
     @Override
     public QueryLayer visit(LimitPipeOperator limit, QueryLayer context) {
-        QueryLayer layer=context;
-        layer.add("Pivot Limit",limit.getLimitExpression());
-        return layer;
+        context.add("Pivot Limit",limit.getLimitExpression());
+        return context;
     }
 
     @Override
     public QueryLayer visit(OrderByPipeOperator orderBy, QueryLayer context) {
-        QueryLayer layer=context;
-        layer.add("Pivot Order",orderBy.getOrderByElements());
-        return layer;
+        context.add("Pivot Order",orderBy.getOrderByElements());
+        return context;
     }
 
     @Override
     public QueryLayer visit(PivotPipeOperator pivot, QueryLayer context) {
-        QueryLayer layer=context;
-        return layer;
+        context.add("Pivot Columns",pivot.getPivotColumns());
+        return context;
     }
 
     @Override
     public QueryLayer visit(RenamePipeOperator rename, QueryLayer context) {
-        QueryLayer layer=context;
-        return layer;
+        context.add("Renamed Select Items",rename.getSelectItems());
+        return context;
     }
 
     @Override
     public QueryLayer visit(SelectPipeOperator select, QueryLayer context) {
-        QueryLayer layer=context;
-        layer.add("Select Items",select.getSelectItems());
-        return layer;
+        context.add("Select Items",select.getSelectItems());
+        return context;
     }
 
     @Override
     public QueryLayer visit(SetPipeOperator set, QueryLayer context) {
-        QueryLayer layer=context;
-        return layer;
+        context.add("SetPipeOpe",set.getUpdateSets());
+        return context;
     }
 
     @Override
     public QueryLayer visit(TableSamplePipeOperator tableSample, QueryLayer context) {
-        QueryLayer layer=context;
-        return layer;
+        context.add("Table Sample",tableSample);
+        return context;
     }
 
     @Override
     public QueryLayer visit(SetOperationPipeOperator union, QueryLayer context) {
-        QueryLayer layer=context;
-        return layer;
+        context.add("Union",union.toString());
+        return context;
     }
 
     @Override
     public QueryLayer visit(UnPivotPipeOperator unPivot, QueryLayer context) {
-        QueryLayer layer=context;
-        return layer;
+        context.add("Pivot Pipe",unPivot);
+        return context;
     }
 
     @Override
     public QueryLayer visit(WherePipeOperator where, QueryLayer context) {
-        QueryLayer layer=context;
-        return layer;
+        context.add("Pipe Condition",where.getExpression());
+        return context;
     }
 
     @Override
     public QueryLayer visit(WindowPipeOperator window, QueryLayer context) {
-        QueryLayer layer=context;
-        return layer;
+        context.add("Pipe Window",window.toString());
+        return context;
     }
 }
