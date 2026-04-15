@@ -64,8 +64,10 @@ public class InsertVisitorImpl {
     }
 
     public <S> QueryLayer visit(Select select, S context){
-        select.accept(sv, context);
-        return (QueryLayer) context;
+        QueryLayer parent = (QueryLayer) context;
+        QueryLayer subLayer = new QueryLayer();
+        select.accept(sv, subLayer);
+        parent.subLayers.add(subLayer);
+        return parent;
     }
-
 }

@@ -73,30 +73,21 @@ public class StatementVisitorImpl implements StatementVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(Insert insert, S context) {
-            QueryLayer layer = (QueryLayer) context;
-            if (insert.getTable() != null) {
-                iv.visit(insert.getTable(),layer);
-            }
-
-            if (insert.getColumns() != null && insert.getValues() != null) {
-                iv.visit(insert.getColumns(), insert.getValues(), layer);
-            }
-            else {
-                if (insert.getColumns() != null) {
-                    iv.visit(insert.getColumns(), layer);
-                }
-
-                if (insert.getValues() != null) {
-                    iv.visit(insert.getValues(), layer);
-                }
-            }
-
-            if (insert.getSelect() != null) {
-                iv.visit(insert.getSelect(),layer);
-            }
+        QueryLayer layer = (QueryLayer) context;
+        if (insert.getTable() != null) {
+            iv.visit(insert.getTable(), layer);
+        }
+        if (insert.getColumns() != null) {
+            iv.visit(insert.getColumns(), layer);
+        }
+        if (insert.getSelect() != null) {
+            iv.visit(insert.getSelect(), layer);
+        }
+        else if (insert.getValues() != null) {
+            iv.visit(insert.getColumns(), insert.getValues(), layer);
+        }
         return layer;
     }
-
     @Override
     public <S> QueryLayer visit(Drop drop, S context) {
         return null;
