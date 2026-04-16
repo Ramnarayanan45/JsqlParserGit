@@ -71,8 +71,7 @@ public class StatementVisitorImpl implements StatementVisitor<QueryLayer> {
     @Override
     public <S> QueryLayer visit(Update update, S context) {
         QueryLayer layer=(QueryLayer)context;
-        uv.handle(update,layer);
-        return layer;
+        return  uv.handle(update,layer);
     }
 
     @Override
