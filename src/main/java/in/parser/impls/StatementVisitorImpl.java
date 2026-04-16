@@ -30,10 +30,12 @@ import net.sf.jsqlparser.statement.upsert.Upsert;
 public class StatementVisitorImpl implements StatementVisitor<QueryLayer> {
     SelectVisitorImpl sv;
     InsertVisitorImpl iv;
+    UpdateVisitorImpl uv;
 
-    public StatementVisitorImpl(SelectVisitorImpl sv){
+    public StatementVisitorImpl(SelectVisitorImpl sv) {
         this.sv=sv;
         iv=new InsertVisitorImpl(sv);
+        uv=new UpdateVisitorImpl();
     }
 
     @Override
@@ -68,7 +70,9 @@ public class StatementVisitorImpl implements StatementVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(Update update, S context) {
-        return null;
+        QueryLayer layer=(QueryLayer)context;
+        uv.handle(update,layer);
+        return layer;
     }
 
     @Override
