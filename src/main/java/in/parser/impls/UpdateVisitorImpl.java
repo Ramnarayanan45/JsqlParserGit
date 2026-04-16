@@ -11,11 +11,9 @@ public class UpdateVisitorImpl {
     ExpressionVisitorImpl exprVisitor = new ExpressionVisitorImpl();
 
     public QueryLayer handle(Update update, QueryLayer layer) {
-
         if (layer == null){
             return null;
         }
-
         if (update.getTable() != null){
             layer.add("Table", update.getTable().getName());
         }
@@ -41,7 +39,6 @@ public class UpdateVisitorImpl {
         if (update.getWhere() != null) {
             update.getWhere().accept(exprVisitor, layer);
         }
-
         return layer;
     }
 }

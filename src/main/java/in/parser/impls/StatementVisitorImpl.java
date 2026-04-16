@@ -31,11 +31,13 @@ public class StatementVisitorImpl implements StatementVisitor<QueryLayer> {
     SelectVisitorImpl sv;
     InsertVisitorImpl iv;
     UpdateVisitorImpl uv;
+    DeleteVisitorImpl dv;
 
     public StatementVisitorImpl(SelectVisitorImpl sv) {
         this.sv=sv;
         iv=new InsertVisitorImpl(sv);
         uv=new UpdateVisitorImpl();
+        dv=new DeleteVisitorImpl();
     }
 
     @Override
@@ -65,7 +67,8 @@ public class StatementVisitorImpl implements StatementVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(Delete delete, S context) {
-        return null;
+        QueryLayer layer=(QueryLayer)context;
+        return dv.handle(delete,layer);
     }
 
     @Override
