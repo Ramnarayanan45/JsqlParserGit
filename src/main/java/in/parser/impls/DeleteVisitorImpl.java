@@ -20,7 +20,6 @@ public class DeleteVisitorImpl {
 
         Expression where = delete.getWhere();
         if (where != null) {
-            layer.add("Where", where.toString());
             where.accept(exprVisitor, layer);
         }
 
