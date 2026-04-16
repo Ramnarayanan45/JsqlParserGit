@@ -25,7 +25,6 @@ public class UpdateVisitorImpl {
                         layer.add("UpdateColumns", col.getColumnName());
                     }
                 }
-
                 if (set.getValues() != null) {
                     List<Column> col=set.getColumns();
                     int i=0;

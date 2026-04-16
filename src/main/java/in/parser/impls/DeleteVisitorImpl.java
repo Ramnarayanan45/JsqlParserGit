@@ -23,11 +23,6 @@ public class DeleteVisitorImpl {
             where.accept(exprVisitor, layer);
         }
 
-        if (delete.getUsingList() != null) {
-            delete.getUsingList().forEach(t ->
-                layer.add("UsingTables", t.toString())
-            );
-        }
         return layer;
     }
 }
