@@ -6,9 +6,7 @@ import java.util.Scanner;
 public class Input {
 
     private Input() {}
-
     static Scanner scan = new Scanner(System.in);
-
 
     public static double getDouble(String str) {
         while (true) {
@@ -52,7 +50,6 @@ public class Input {
         }
     }
 
-
     public static byte getByte(String str) {
         while (true) {
             try {
@@ -66,7 +63,6 @@ public class Input {
             }
         }
     }
-
 
     public static short getShort(String str) {
         while (true) {
@@ -82,12 +78,10 @@ public class Input {
         }
     }
 
-
     public static String getNext(String str) {
         System.out.print("✏️ " + str + " → ");
         return scan.next();
     }
-
 
     public static String getLine(String str) {
         System.out.print("\n" + str + " → ");
@@ -105,8 +99,6 @@ public class Input {
         return sc;
     }
 
-
-
     public static int getInt(String str) {
         while (true) {
             try {
@@ -121,7 +113,6 @@ public class Input {
         }
     }
 
-
     public static boolean getBoolean(String str) {
         while (true) {
             System.out.print("❓ " + str + " (yes/no) → ");
@@ -134,7 +125,6 @@ public class Input {
             System.err.println("⚠️ Please answer with yes or no.");
         }
     }
-
 
     public static int getChoice(String str, int lowerBound, int upperBound) {
         while (true) {
