@@ -9,9 +9,11 @@ import net.sf.jsqlparser.statement.select.*;
 
 public class InsertVisitorImpl {
     SelectVisitorImpl sv;
+    RestrictTablesColumns restrictTablesColumns;
 
-    public InsertVisitorImpl(SelectVisitorImpl sv){
+    public InsertVisitorImpl(SelectVisitorImpl sv,RestrictTablesColumns restrictTablesColumns){
         this.sv=sv;
+        this.restrictTablesColumns=restrictTablesColumns;
     }
 
     public <S> QueryLayer visit(ExpressionList<Column> columns, Values values, S context) {
@@ -21,7 +23,13 @@ public class InsertVisitorImpl {
             int j=columns.size();
             ExpressionList<?> val=values.getExpressions();
             for (Column column : columns) {
-                layer.add("Columns", column.getColumnName());
+                if (!restrictTablesColumns.getColumns().stream().anyMatch(s -> s.getColumnName().equalsIgnoreCase(column.getColumnName()))) {
+                    String col = column.getColumnName();
+                    layer.add("Columns", col);
+                }
+                else{
+                    layer.add("RestrictColumns",column.getColumnName());
+                }
             }
             if(val.size()==j) {
                 for (int i = 0; i < val.size(); i++) {
@@ -42,15 +50,27 @@ public class InsertVisitorImpl {
 
     public <S> QueryLayer visit(Table tableName, S context){
         QueryLayer layer=(QueryLayer)context;
-        layer.add("Tables",tableName.getName());
-        return layer;
+        if (!restrictTablesColumns.getTables().stream().anyMatch(s -> s.equalsIgnoreCase(tableName.getName()))) {
+            layer.add("Tables", tableName.getName());
+            if (tableName.getAlias() != null) {
+                layer.add("Aliases", tableName.getAlias().getName());
+            }
+        }
+        else{
+            layer.add("RestrictTables",tableName.getName());
+        }        return layer;
     }
 
     public <S> QueryLayer visit(ExpressionList<Column> column, S context){
         QueryLayer layer=(QueryLayer)context;
         for (Column col : column) {
-            String columnName = col.getColumnName();
-            layer.add("Columns", columnName);
+            if (!restrictTablesColumns.getColumns().stream().anyMatch(s -> s.getColumnName().equalsIgnoreCase(col.getColumnName()))) {
+                String columnName = col.getColumnName();
+                layer.add("Columns", columnName);
+            }
+            else{
+                layer.add("RestrictColumns",col.getColumnName());
+            }
         }
         return layer;
     }

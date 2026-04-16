@@ -1,6 +1,7 @@
 package in.parser.impls;
 
 import in.parser.queryparser.QueryLayer;
+import in.parser.queryparser.RestrictTablesColumns;
 import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Table;
@@ -13,6 +14,7 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
     FromItemVisitorImpl fv;
     SelectItemVisitorImpl sv;
     ExpressionVisitorImpl exv;
+    RestrictTablesColumns restrictTablesColumns;
 
     public SelectVisitorImpl(Statement smt) {
         if (smt instanceof Select select && select.getPlainSelect() != null) {
@@ -24,6 +26,7 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
         this.fv = fromVisitor;
         this.sv = selectItemVisitor;
         this.exv = exprVisitor;
+        restrictTablesColumns=exv.restrictTablesColumns;
     }
 
     public String resolveFromItemName(FromItem item, boolean useAliasIfPresent) {
@@ -74,7 +77,7 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
         }
 
         if (plainSelect.getWhere() != null) {
-            ExpressionVisitorImpl whereExpr = new ExpressionVisitorImpl();
+            ExpressionVisitorImpl whereExpr = new ExpressionVisitorImpl(restrictTablesColumns);
             plainSelect.getWhere().accept(whereExpr, context);
         }
 
@@ -98,13 +101,13 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
         }
 
         if (plainSelect.getGroupBy() != null && plainSelect.getGroupBy().getGroupByExpressionList() != null) {
-            ExpressionVisitorImpl groupExpr = new ExpressionVisitorImpl();
+            ExpressionVisitorImpl groupExpr = new ExpressionVisitorImpl(restrictTablesColumns);
             GroupByVisitorImpl groupByVisitor = new GroupByVisitorImpl(groupExpr);
             plainSelect.getGroupBy().accept(groupByVisitor, context);
         }
 
         if (plainSelect.getOrderByElements() != null) {
-            ExpressionVisitorImpl orderExpr = new ExpressionVisitorImpl();
+            ExpressionVisitorImpl orderExpr = new ExpressionVisitorImpl(restrictTablesColumns);
             OrderByVisitorImpl orderByVisitor = new OrderByVisitorImpl(orderExpr);
             for (OrderByElement ob : plainSelect.getOrderByElements()) {
                 ob.accept(orderByVisitor, context);

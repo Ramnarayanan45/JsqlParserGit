@@ -19,7 +19,6 @@ public class QueryNode<T> {
     }
 
     public String getName(){
-
         if (value == null){
             return "";
         }

@@ -1,6 +1,7 @@
 package in.parser.impls;
 
 import in.parser.queryparser.QueryLayer;
+import in.parser.queryparser.RestrictTablesColumns;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.piped.FromQuery;
@@ -9,21 +10,32 @@ import net.sf.jsqlparser.statement.select.*;
 public class FromItemVisitorImpl implements FromItemVisitor<QueryLayer> {
 
     SelectVisitorImpl sv;
+    RestrictTablesColumns restrictTablesColumns;
 
-    public FromItemVisitorImpl(SelectVisitorImpl sv) {
+    public FromItemVisitorImpl(SelectVisitorImpl sv, RestrictTablesColumns restrictTablesColumns) {
         this.sv = sv;
+        this.restrictTablesColumns=restrictTablesColumns;
     }
 
     @Override
     public <S> QueryLayer visit(Table tableName, S context) {
-        QueryLayer currentLayer = (QueryLayer) context;
-        if (currentLayer != null) {
-            currentLayer.add("Tables", tableName.getName());
-            if (tableName.getAlias() != null) {
-                currentLayer.add("Aliases", tableName.getAlias().getName());
-            }
+        QueryLayer layer = (QueryLayer) context;
+        String actualTable = tableName.getName();
+        restrictTablesColumns.addCurrentTable(actualTable);
+        if (tableName.getAlias() != null) {
+            String alias = tableName.getAlias().getName();
+            restrictTablesColumns.addAlias(alias, actualTable);
+            layer.add("Aliases", alias);
         }
-        return currentLayer;
+
+        if (!restrictTablesColumns.getTables().stream().anyMatch(s -> s.equalsIgnoreCase(actualTable))) {
+            layer.add("Tables", actualTable);
+        }
+        else {
+            layer.add("RestrictTables", actualTable);
+        }
+
+        return layer;
     }
 
     @Override
@@ -41,12 +53,12 @@ public class FromItemVisitorImpl implements FromItemVisitor<QueryLayer> {
         }
 
         if (selectBody.getSelect() != null) {
-            ExpressionVisitorImpl subExpr = new ExpressionVisitorImpl();
+            ExpressionVisitorImpl subExpr = new ExpressionVisitorImpl(restrictTablesColumns);
             SelectItemVisitorImpl subSelItem = new SelectItemVisitorImpl(subExpr);
             SelectVisitorImpl subSelect = new SelectVisitorImpl(null, subSelItem, subExpr);
-            FromItemVisitorImpl subFrom = new FromItemVisitorImpl(subSelect);
+            FromItemVisitorImpl subFrom = new FromItemVisitorImpl(subSelect,restrictTablesColumns);
             subSelect = new SelectVisitorImpl(subFrom, subSelItem, subExpr);
-            selectBody.getSelect().accept(new StatementVisitorImpl(subSelect), subLayer);
+            selectBody.getSelect().accept(new StatementVisitorImpl(subSelect,restrictTablesColumns), subLayer);
         }
         return subLayer;
     }
@@ -75,7 +87,7 @@ public class FromItemVisitorImpl implements FromItemVisitor<QueryLayer> {
 
         if (values.getExpressions() != null) {
             for (Expression row : values.getExpressions()) {
-                row.accept(new ExpressionVisitorImpl(), context);
+                row.accept(new ExpressionVisitorImpl(restrictTablesColumns), context);
             }
         }
         return layer;

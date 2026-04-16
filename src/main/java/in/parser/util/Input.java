@@ -86,16 +86,16 @@ public class Input {
     public static String getLine(String str) {
         System.out.print("\n" + str + " → ");
         String sc=scan.nextLine();
-        while(true) {
-            if (sc.isEmpty()) {
-                System.err.println("Please enter the valid Input");
-                System.out.print("\n" + str + " → ");
-                sc=scan.nextLine();
-            }
-            else{
-                break;
-            }
-        }
+//        while(true) {
+//            if (sc.isEmpty()) {
+//                System.err.println("Please enter the valid Input");
+//                System.out.print("\n" + str + " → ");
+//                sc=scan.nextLine();
+//            }
+//            else{
+//                break;
+//            }
+//        }
         return sc;
     }
 

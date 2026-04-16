@@ -1,6 +1,7 @@
 package in.parser.impls;
 
 import in.parser.queryparser.QueryLayer;
+import in.parser.queryparser.RestrictTablesColumns;
 import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.arithmetic.*;
 import net.sf.jsqlparser.expression.operators.conditional.*;
@@ -10,6 +11,12 @@ import net.sf.jsqlparser.statement.piped.FromQuery;
 import net.sf.jsqlparser.statement.select.*;
 
 public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
+
+    RestrictTablesColumns restrictTablesColumns;
+
+    public ExpressionVisitorImpl(RestrictTablesColumns restrictTablesColumns){
+        this.restrictTablesColumns=restrictTablesColumns;
+    }
 
     public String getColumnName(Column column) {
         if (column == null) {
@@ -40,7 +47,11 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(Function function, S context) {
+
         QueryLayer layer = (QueryLayer) context;
+        if (function.getParameters() != null) {
+            function.getParameters().accept(this, context);
+        }
         if (layer != null) {
             layer.add("Functions", function.getName());
             layer.add("Function_Columns", function.toString());
@@ -382,11 +393,37 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(Column column, S context) {
+
         QueryLayer layer = (QueryLayer) context;
-        if (layer != null) {
-            String col = getColumnName(column);
-            layer.add("Columns", col);
+        String colName = column.getColumnName();
+        String tableName = null;
+        if (column.getTable() != null) {
+            tableName = column.getTable().getName();
         }
+        if (tableName == null || tableName.isBlank()) {
+
+            if (restrictTablesColumns.getCurrentTables().size() == 1) {
+                tableName = restrictTablesColumns.getCurrentTables().get(0);
+            }
+            else {
+                tableName = "UNKNOWN";
+            }
+
+        } else {
+            tableName = restrictTablesColumns.resolveTable(tableName);
+        }
+        String table=tableName;
+        boolean isRestricted = restrictTablesColumns.getColumns().stream().anyMatch(s -> s.getColumnName().equalsIgnoreCase(colName) && s.getTableName().equalsIgnoreCase(table));
+        String fullName = tableName + "." + colName;
+        if (layer != null) {
+            if (isRestricted) {
+                layer.add("RestrictColumns", fullName);
+            }
+            else {
+                layer.add("Columns", fullName);
+            }
+        }
+
         return layer;
     }
 
@@ -676,19 +713,21 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
         QueryLayer parentLayer = (QueryLayer) context;
         QueryLayer subLayer = new QueryLayer();
+
         if (parentLayer != null) {
             parentLayer.subLayers.add(subLayer);
         }
-        ExpressionVisitorImpl subExpr = new ExpressionVisitorImpl();
+        restrictTablesColumns.clearCurrentTables();
+        ExpressionVisitorImpl subExpr = new ExpressionVisitorImpl(restrictTablesColumns);
         SelectItemVisitorImpl subSelItem = new SelectItemVisitorImpl(subExpr);
         SelectVisitorImpl subSelect = new SelectVisitorImpl(null, subSelItem, subExpr);
-        FromItemVisitorImpl subFrom = new FromItemVisitorImpl(subSelect);
+        FromItemVisitorImpl subFrom = new FromItemVisitorImpl(subSelect, restrictTablesColumns);
         subSelect = new SelectVisitorImpl(subFrom, subSelItem, subExpr);
-        StatementVisitorImpl stmt = new StatementVisitorImpl(subSelect);
+        StatementVisitorImpl stmt = new StatementVisitorImpl(subSelect, restrictTablesColumns);
         select.accept(stmt, subLayer);
-
         return null;
     }
+
     @Override
     public <S> QueryLayer visit(TranscodingFunction transcodingFunction, S context) {
         return null;

@@ -1,13 +1,14 @@
 package in.parser.impls;
 
 import in.parser.queryparser.QueryLayer;
+import in.parser.queryparser.RestrictTablesColumns;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.schema.Table;
 
 public class DeleteVisitorImpl {
-
-    ExpressionVisitorImpl exprVisitor = new ExpressionVisitorImpl();
+    RestrictTablesColumns restrictTablesColumns= new RestrictTablesColumns();
+    ExpressionVisitorImpl exprVisitor = new ExpressionVisitorImpl(restrictTablesColumns);
 
     public QueryLayer handle(Delete delete, QueryLayer layer) {
 
