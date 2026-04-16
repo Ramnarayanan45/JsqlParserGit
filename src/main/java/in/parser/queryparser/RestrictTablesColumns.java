@@ -1,0 +1,45 @@
+package in.parser.queryparser;
+import java.util.*;
+
+public class RestrictTablesColumns {
+
+    List<String> tables=new ArrayList<>();
+    List<TableName> columns=new ArrayList<>();
+    Map<String, String> aliasToTable = new HashMap<>();
+    List<String> currentTables = new ArrayList<>();
+
+    public void addCurrentTable(String table) {
+        currentTables.add(table);
+    }
+
+    public List<String> getCurrentTables() {
+        return currentTables;
+    }
+
+    public void clearCurrentTables() {
+        currentTables.clear();
+    }
+
+    public void addAlias(String alias, String table) {
+        aliasToTable.put(alias, table);
+    }
+
+    public String resolveTable(String name) {
+        return aliasToTable.getOrDefault(name, name);
+    }
+
+    public List<String> getTables(){
+        return tables;
+    }
+
+    public List<TableName> getColumns(){
+        return columns;
+    }
+
+    public void setTableName(String table){
+        tables.add(table);
+    }
+    public void setColumnName(TableName column){
+        columns.add(column);
+    }
+}
