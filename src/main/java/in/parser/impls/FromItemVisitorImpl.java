@@ -1,5 +1,6 @@
 package in.parser.impls;
 
+import in.parser.queryparser.ConditionMapping;
 import in.parser.queryparser.QueryLayer;
 import in.parser.queryparser.RestrictTablesColumns;
 import net.sf.jsqlparser.expression.Expression;
@@ -11,6 +12,7 @@ public class FromItemVisitorImpl implements FromItemVisitor<QueryLayer> {
 
     SelectVisitorImpl sv;
     RestrictTablesColumns restrictTablesColumns;
+    ConditionMapping conditionMapping;
 
     public FromItemVisitorImpl(SelectVisitorImpl sv, RestrictTablesColumns restrictTablesColumns) {
         this.sv = sv;
@@ -28,7 +30,8 @@ public class FromItemVisitorImpl implements FromItemVisitor<QueryLayer> {
             layer.add("Aliases", alias);
         }
 
-        if (!restrictTablesColumns.getTables().stream().anyMatch(s -> s.equalsIgnoreCase(actualTable))) {
+        if ((!restrictTablesColumns.getTables().stream().anyMatch(s -> s.equalsIgnoreCase(actualTable))) &&
+            (!restrictTablesColumns.getPrefixTables().stream().anyMatch(s -> actualTable.startsWith(s)))){
             layer.add("Tables", actualTable);
         }
         else {
@@ -53,7 +56,7 @@ public class FromItemVisitorImpl implements FromItemVisitor<QueryLayer> {
         }
 
         if (selectBody.getSelect() != null) {
-            ExpressionVisitorImpl subExpr = new ExpressionVisitorImpl(restrictTablesColumns);
+            ExpressionVisitorImpl subExpr =new ExpressionVisitorImpl(restrictTablesColumns, conditionMapping);
             SelectItemVisitorImpl subSelItem = new SelectItemVisitorImpl(subExpr);
             SelectVisitorImpl subSelect = new SelectVisitorImpl(null, subSelItem, subExpr);
             FromItemVisitorImpl subFrom = new FromItemVisitorImpl(subSelect,restrictTablesColumns);
@@ -87,7 +90,7 @@ public class FromItemVisitorImpl implements FromItemVisitor<QueryLayer> {
 
         if (values.getExpressions() != null) {
             for (Expression row : values.getExpressions()) {
-                row.accept(new ExpressionVisitorImpl(restrictTablesColumns), context);
+                row.accept(new ExpressionVisitorImpl(restrictTablesColumns, conditionMapping), context);
             }
         }
         return layer;

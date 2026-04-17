@@ -13,12 +13,15 @@ public class QueryParser {
     SelectVisitorImpl mv;
     List<String> list = new ArrayList<>();
     RestrictTablesColumns restrictTablesColumns=new RestrictTablesColumns();
+    ConditionMapping conditionMapping = new ConditionMapping();
+    Statement statement;
+
     public static void main(String[] args) {
         QueryParser queryParser = new QueryParser();
         queryParser.loadConfig();
         queryParser.queryData();
     }
-//
+
 //    public void restrictColumns(){
 //        int choice=getPreference();
 //        if(choice==1){
@@ -67,7 +70,7 @@ public class QueryParser {
 //            restrictTablesColumns.setColumnName(tableName);
 //        }
 //    }
-    //    public void controller() {
+//    public void controller() {
 //        String query = getQuery();
 //        Statement smt = getStatement(query);
 //        mv = new SelectVisitorImpl(smt);
@@ -153,9 +156,9 @@ public class QueryParser {
     public void queryData() {
 
         restrictTablesColumns.clearCurrentTables();
-        Statement statement = getStatement(getQuery());
+        statement = getStatement(getQuery());
         QueryLayer root = new QueryLayer();
-        ExpressionVisitorImpl expr = new ExpressionVisitorImpl(restrictTablesColumns);
+        ExpressionVisitorImpl expr = new ExpressionVisitorImpl(restrictTablesColumns, conditionMapping);
         SelectItemVisitorImpl selItem = new SelectItemVisitorImpl(expr);
         SelectVisitorImpl sel = new SelectVisitorImpl(null, selItem, expr);
         FromItemVisitorImpl from = new FromItemVisitorImpl(sel, restrictTablesColumns);
@@ -167,6 +170,7 @@ public class QueryParser {
         }
         else {
             printLayer(root, 1);
+            printValues();
         }
     }
 
@@ -211,6 +215,12 @@ public class QueryParser {
                     }
                 }
             }
+            String prefixTables=props.getProperty("restricted.prefixTables");
+            if(prefixTables!=null){
+                for(String prefix:prefixTables.split(",")){
+                    restrictTablesColumns.setTablePrefixName(prefix.trim());
+                }
+            }
         }
         catch (Exception e) {
             System.out.println("Error loading config: " + e.getMessage());
@@ -224,6 +234,18 @@ public class QueryParser {
         }
         for (QueryLayer sub : layer.subLayers) {
             printLayer(sub, level + 1);
+        }
+    }
+
+    public void printValues(){
+        List<ConditionClass<?>> values=conditionMapping.getConditionsList();
+        if(!values.isEmpty()) {
+            System.out.print("\nQuery : ");
+            System.out.println(statement);
+            System.out.print("\nValues : ");
+            for (ConditionClass<?> c : values) {
+                System.out.println(c.getColumnName() + " -> " + c.getValue());
+            }
         }
     }
 }

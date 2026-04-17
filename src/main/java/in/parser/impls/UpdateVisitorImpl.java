@@ -1,5 +1,6 @@
 package in.parser.impls;
 
+import in.parser.queryparser.ConditionMapping;
 import in.parser.queryparser.QueryLayer;
 import in.parser.queryparser.RestrictTablesColumns;
 import net.sf.jsqlparser.expression.Expression;
@@ -9,7 +10,8 @@ import java.util.*;
 
 public class UpdateVisitorImpl {
     RestrictTablesColumns restrictTablesColumns=new RestrictTablesColumns();
-    ExpressionVisitorImpl exprVisitor = new ExpressionVisitorImpl(restrictTablesColumns);
+    ConditionMapping conditionMapping;
+    ExpressionVisitorImpl exprVisitor = new ExpressionVisitorImpl(restrictTablesColumns,conditionMapping);
 
     public QueryLayer handle(Update update, QueryLayer layer) {
         if (layer == null){

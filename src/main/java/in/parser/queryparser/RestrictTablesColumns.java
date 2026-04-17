@@ -3,6 +3,7 @@ import java.util.*;
 
 public class RestrictTablesColumns {
 
+    List<String> prefixTables=new ArrayList<>();
     List<String> tables=new ArrayList<>();
     List<TableName> columns=new ArrayList<>();
     Map<String, String> aliasToTable = new HashMap<>();
@@ -39,7 +40,17 @@ public class RestrictTablesColumns {
     public void setTableName(String table){
         tables.add(table);
     }
+
     public void setColumnName(TableName column){
         columns.add(column);
     }
+
+    public void setTablePrefixName(String prefixTable){
+        prefixTables.add(prefixTable);
+    }
+
+    public List<String> getPrefixTables(){
+        return prefixTables;
+    }
+
 }

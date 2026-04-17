@@ -1,5 +1,6 @@
 package in.parser.impls;
 
+import in.parser.queryparser.ConditionMapping;
 import in.parser.queryparser.QueryLayer;
 import in.parser.queryparser.RestrictTablesColumns;
 import net.sf.jsqlparser.expression.*;
@@ -13,9 +14,11 @@ import net.sf.jsqlparser.statement.select.*;
 public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
     RestrictTablesColumns restrictTablesColumns;
+    ConditionMapping conditionMapping;
 
-    public ExpressionVisitorImpl(RestrictTablesColumns restrictTablesColumns){
-        this.restrictTablesColumns=restrictTablesColumns;
+    public ExpressionVisitorImpl(RestrictTablesColumns restrictTablesColumns,ConditionMapping conditionMapping){
+        this.restrictTablesColumns = restrictTablesColumns;
+        this.conditionMapping = conditionMapping;
     }
 
     public String getColumnName(Column column) {
@@ -83,7 +86,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
     public <S> QueryLayer visit(LongValue longValue, S context) {
         QueryLayer layer = (QueryLayer) context;
         if (layer != null) {
-            layer.add("Conditions", String.valueOf(longValue.getValue()));
+            layer.add("Condition Value", new JdbcParameter());
         }
         return layer;
     }
@@ -97,7 +100,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
     public <S> QueryLayer visit(DateValue dateValue, S context) {
         QueryLayer layer = (QueryLayer) context;
         if (layer != null) {
-            layer.add("Conditions", dateValue.toString());
+            layer.add("Condition Value", new JdbcParameter());
         }
         return layer;
     }
@@ -106,7 +109,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
     public <S> QueryLayer visit(TimeValue timeValue, S context) {
         QueryLayer layer = (QueryLayer) context;
         if (layer != null) {
-            layer.add("Conditions", timeValue.toString());
+            layer.add("Condition Value", new JdbcParameter());
         }
         return layer;
     }
@@ -115,7 +118,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
     public <S> QueryLayer visit(TimestampValue timestampValue, S context) {
         QueryLayer layer = (QueryLayer) context;
         if (layer != null) {
-            layer.add("Conditions", timestampValue.toString());
+            layer.add("Condition Value", new JdbcParameter());
         }
         return layer;
     }
@@ -124,7 +127,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
     public <S> QueryLayer visit(StringValue stringValue, S context) {
         QueryLayer layer = (QueryLayer) context;
         if (layer != null) {
-            layer.add("Conditions", stringValue.getValue());
+            layer.add("Condition Value", new JdbcParameter());
         }
         return layer;
     }
@@ -215,24 +218,45 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
         QueryLayer layer = (QueryLayer) context;
         Expression left = equalsTo.getLeftExpression();
         Expression right = equalsTo.getRightExpression();
-
         if (layer != null) {
+            if (left instanceof Column column) {
+                String columnName = getColumnName(column);
+                ExpressionVisitorAdapterImpl expr = new ExpressionVisitorAdapterImpl();
+                right.accept(expr);
+                Object val = expr.getValue();
+                if (val != null) {
+                    conditionMapping.addCondition(columnName, val);
+                    equalsTo.setRightExpression(new JdbcParameter());
+                }
+            }
             layer.add("Conditions", equalsTo.toString());
         }
+
         if (left != null) {
             left.accept(this, context);
         }
         if (right != null) {
             right.accept(this, context);
         }
-
         return layer;
     }
 
     @Override
     public <S> QueryLayer visit(GreaterThan greaterThan, S context) {
         QueryLayer layer = (QueryLayer) context;
+        Expression left=greaterThan.getLeftExpression();
+        Expression right=greaterThan.getRightExpression();
         if (layer != null) {
+            if (left instanceof Column column) {
+                String columnName = getColumnName(column);
+                ExpressionVisitorAdapterImpl expr = new ExpressionVisitorAdapterImpl();
+                right.accept(expr);
+                Object val = expr.getValue();
+                if (val != null) {
+                    conditionMapping.addCondition(columnName, val);
+                    greaterThan.setRightExpression(new JdbcParameter());
+                }
+            }
             layer.add("Conditions", greaterThan.toString());
         }
         if (greaterThan.getLeftExpression() != null) {
@@ -247,7 +271,19 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
     @Override
     public <S> QueryLayer visit(GreaterThanEquals greaterThanEquals, S context) {
         QueryLayer layer = (QueryLayer) context;
+        Expression left=greaterThanEquals.getLeftExpression();
+        Expression right=greaterThanEquals.getRightExpression();
         if (layer != null) {
+            if (left instanceof Column column) {
+                String columnName = getColumnName(column);
+                ExpressionVisitorAdapterImpl expr = new ExpressionVisitorAdapterImpl();
+                right.accept(expr);
+                Object val = expr.getValue();
+                if (val != null) {
+                    conditionMapping.addCondition(columnName, val);
+                    greaterThanEquals.setRightExpression(new JdbcParameter());
+                }
+            }
             layer.add("Conditions", greaterThanEquals.toString());
         }
         if (greaterThanEquals.getLeftExpression() != null) {
@@ -266,6 +302,16 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
         Expression right = inExpression.getRightExpression();
 
         if (layer != null) {
+            if (left instanceof Column column) {
+                String columnName = getColumnName(column);
+                ExpressionVisitorAdapterImpl expr = new ExpressionVisitorAdapterImpl();
+                right.accept(expr);
+                Object val = expr.getValue();
+                if (val != null) {
+                    conditionMapping.addCondition(columnName, val);
+                    inExpression.setRightExpression(new JdbcParameter());
+                }
+            }
             layer.add("Conditions", inExpression.toString());
         }
         if (left != null) {
@@ -314,7 +360,19 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
     @Override
     public <S> QueryLayer visit(LikeExpression likeExpression, S context) {
         QueryLayer layer = (QueryLayer) context;
+        Expression left=likeExpression.getLeftExpression();
+        Expression right=likeExpression.getRightExpression();
         if (layer != null) {
+            if (left instanceof Column column) {
+                String columnName = getColumnName(column);
+                ExpressionVisitorAdapterImpl expr = new ExpressionVisitorAdapterImpl();
+                right.accept(expr);
+                Object val = expr.getValue();
+                if (val != null) {
+                    conditionMapping.addCondition(columnName, val);
+                    likeExpression.setRightExpression(new JdbcParameter());
+                }
+            }
             layer.add("Conditions", likeExpression.toString());
         }
         if (likeExpression.getLeftExpression() != null) {
@@ -329,7 +387,19 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
     @Override
     public <S> QueryLayer visit(MinorThan minorThan, S context) {
         QueryLayer layer = (QueryLayer) context;
+        Expression left=minorThan.getLeftExpression();
+        Expression right=minorThan.getRightExpression();
         if (layer != null) {
+            if (left instanceof Column column) {
+                String columnName = getColumnName(column);
+                ExpressionVisitorAdapterImpl expr = new ExpressionVisitorAdapterImpl();
+                right.accept(expr);
+                Object val = expr.getValue();
+                if (val != null) {
+                    conditionMapping.addCondition(columnName, val);
+                    minorThan.setRightExpression(new JdbcParameter());
+                }
+            }
             layer.add("Conditions", minorThan.toString());
         }
         if (minorThan.getLeftExpression() != null) {
@@ -344,7 +414,19 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
     @Override
     public <S> QueryLayer visit(MinorThanEquals minorThanEquals, S context) {
         QueryLayer layer = (QueryLayer) context;
+        Expression left=minorThanEquals.getLeftExpression();
+        Expression right=minorThanEquals.getRightExpression();
         if (layer != null) {
+            if (left instanceof Column column) {
+                String columnName = getColumnName(column);
+                ExpressionVisitorAdapterImpl expr = new ExpressionVisitorAdapterImpl();
+                right.accept(expr);
+                Object val = expr.getValue();
+                if (val != null) {
+                    conditionMapping.addCondition(columnName, val);
+                    minorThanEquals.setRightExpression(new JdbcParameter());
+                }
+            }
             layer.add("Conditions", minorThanEquals.toString());
         }
         if (minorThanEquals.getLeftExpression() != null) {
@@ -359,7 +441,19 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
     @Override
     public <S> QueryLayer visit(NotEqualsTo notEqualsTo, S context) {
         QueryLayer layer = (QueryLayer) context;
+        Expression left=notEqualsTo.getLeftExpression();
+        Expression right=notEqualsTo.getRightExpression();
         if (layer != null) {
+            if (left instanceof Column column) {
+                String columnName = getColumnName(column);
+                ExpressionVisitorAdapterImpl expr = new ExpressionVisitorAdapterImpl();
+                right.accept(expr);
+                Object val = expr.getValue();
+                if (val != null) {
+                    conditionMapping.addCondition(columnName, val);
+                    notEqualsTo.setRightExpression(new JdbcParameter());
+                }
+            }
             layer.add("Conditions", notEqualsTo.toString());
         }
         if (notEqualsTo.getLeftExpression() != null) {
@@ -405,11 +499,8 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
             if (restrictTablesColumns.getCurrentTables().size() == 1) {
                 tableName = restrictTablesColumns.getCurrentTables().get(0);
             }
-            else {
-                tableName = "UNKNOWN";
-            }
-
-        } else {
+        }
+        else {
             tableName = restrictTablesColumns.resolveTable(tableName);
         }
         String table=tableName;
@@ -718,7 +809,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
             parentLayer.subLayers.add(subLayer);
         }
         restrictTablesColumns.clearCurrentTables();
-        ExpressionVisitorImpl subExpr = new ExpressionVisitorImpl(restrictTablesColumns);
+        ExpressionVisitorImpl subExpr = new ExpressionVisitorImpl(restrictTablesColumns,conditionMapping);
         SelectItemVisitorImpl subSelItem = new SelectItemVisitorImpl(subExpr);
         SelectVisitorImpl subSelect = new SelectVisitorImpl(null, subSelItem, subExpr);
         FromItemVisitorImpl subFrom = new FromItemVisitorImpl(subSelect, restrictTablesColumns);
