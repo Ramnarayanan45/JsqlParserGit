@@ -27,4 +27,35 @@ public class ExpressionVisitorAdapterImpl extends ExpressionVisitorAdapter<Objec
         value = doubleValue.getValue();
         return value;
     }
+
+    @Override
+    public <QueryLayer> Object visit(TimeValue timeValue,QueryLayer context){
+        value = timeValue.getValue();
+        return value;
+    }
+
+    @Override
+    public <QueryLayer> Object visit(TimestampValue timestampValue,QueryLayer context){
+        value=timestampValue.getValue();
+        return value;
+    }
+
+    @Override
+    public <QueryLayer> Object visit(BooleanValue  booleanValue,QueryLayer context){
+        value=booleanValue.getValue();
+        return value;
+    }
+
+    @Override
+    public <QueryLayer> Object visit(DateValue dateValue,QueryLayer context){
+        value=dateValue.getValue();
+        return value;
+    }
+
+    @Override
+    public <QueryLayer> Object visit(AllValue allValue,QueryLayer context){
+        value=allValue.toString();
+        return value;
+    }
+
 }
