@@ -6,7 +6,7 @@ public class ConditionMapping {
 
     List<ConditionClass<?>> conditionsList = new ArrayList<>();
 
-    public void addCondition(String column, Object value) {
+    public void addCondition(String column, List<Object> value) {
         conditionsList.add(new ConditionClass<>(column, value));
     }
 

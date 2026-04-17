@@ -82,8 +82,7 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
         }
 
         if (plainSelect.getWhere() != null) {
-            ExpressionVisitorImpl whereExpr = new ExpressionVisitorImpl(restrictTablesColumns, conditionMapping);
-            plainSelect.getWhere().accept(whereExpr, context);
+            plainSelect.getWhere().accept(exv, context);
         }
 
         if (plainSelect.getJoins() != null) {
@@ -120,6 +119,8 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
         }
 
         if (plainSelect.getHaving() != null && currentLayer != null) {
+            ExpressionVisitorImpl havingExpr = new ExpressionVisitorImpl(restrictTablesColumns, conditionMapping);
+            plainSelect.getHaving().accept(havingExpr, context);
             currentLayer.add("HavingCriteria", plainSelect.getHaving().toString());
         }
 

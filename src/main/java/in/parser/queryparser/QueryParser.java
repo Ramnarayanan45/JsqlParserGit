@@ -169,7 +169,7 @@ public class QueryParser {
             System.err.println("Access Denied: Restricted table/column used.");
         }
         else {
-            printLayer(root, 1);
+//            printLayer(root, 1);
             printValues();
         }
     }
@@ -239,13 +239,11 @@ public class QueryParser {
 
     public void printValues(){
         List<ConditionClass<?>> values=conditionMapping.getConditionsList();
-        if(!values.isEmpty()) {
             System.out.print("\nQuery : ");
             System.out.println(statement);
-            System.out.print("\nValues : ");
+            System.out.println("\nValues : ");
             for (ConditionClass<?> c : values) {
                 System.out.println(c.getColumnName() + " -> " + c.getValue());
-            }
         }
     }
 }
