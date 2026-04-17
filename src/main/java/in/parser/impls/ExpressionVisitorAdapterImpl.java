@@ -11,19 +11,19 @@ public class ExpressionVisitorAdapterImpl extends ExpressionVisitorAdapter<Objec
     }
 
     @Override
-    public <S> Object visit(StringValue stringValue,S context) {
+    public <QueryLayer> Object visit(StringValue stringValue,QueryLayer context) {
         value = stringValue.getValue();
         return value;
     }
 
     @Override
-    public <S> Object visit(LongValue longValue,S context) {
+    public <QueryLayer> Object visit(LongValue longValue,QueryLayer context) {
         value = longValue.getValue();
         return value;
     }
 
     @Override
-    public <S> Object visit(DoubleValue doubleValue,S context) {
+    public <QueryLayer> Object visit(DoubleValue doubleValue,QueryLayer context) {
         value = doubleValue.getValue();
         return value;
     }
