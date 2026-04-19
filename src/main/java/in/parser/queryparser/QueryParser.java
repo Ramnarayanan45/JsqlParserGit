@@ -163,13 +163,13 @@ public class QueryParser {
         SelectVisitorImpl sel = new SelectVisitorImpl(null, selItem, expr);
         FromItemVisitorImpl from = new FromItemVisitorImpl(sel, restrictTablesColumns);
         sel = new SelectVisitorImpl(from, selItem, expr);
-        StatementVisitorImpl stmt = new StatementVisitorImpl(sel, restrictTablesColumns);
+        StatementVisitorImpl stmt = new StatementVisitorImpl(sel, restrictTablesColumns,expr);
         statement.accept(stmt, root);
         if (hasRestriction(root)) {
             System.err.println("Access Denied: Restricted table/column used.");
         }
         else {
-//            printLayer(root, 1);
+            printLayer(root, 1);
             printValues();
         }
     }

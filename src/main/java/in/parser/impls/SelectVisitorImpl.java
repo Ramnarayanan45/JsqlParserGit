@@ -21,8 +21,8 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
 
 
     public SelectVisitorImpl(Statement smt) {
-        if (smt instanceof Select select && select.getPlainSelect() != null) {
-            visit(select.getPlainSelect(), null);
+        if (smt instanceof Select select) {
+            select.accept(this, null);
         }
     }
 
@@ -70,6 +70,7 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
     public <S> QueryLayer visit(PlainSelect plainSelect, S context) {
 
         QueryLayer currentLayer = (QueryLayer) context;
+        ExpressionVisitorImpl localExprVisitor = this.exv;
 
         if (plainSelect.getFromItem() != null && fv != null) {
             plainSelect.getFromItem().accept(fv, context);
@@ -82,54 +83,21 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
         }
 
         if (plainSelect.getWhere() != null) {
-            plainSelect.getWhere().accept(exv, context);
+            plainSelect.getWhere().accept(localExprVisitor, context);
         }
 
         if (plainSelect.getJoins() != null) {
-            String currentLeft = resolveFromItemName(plainSelect.getFromItem(), false);
             for (Join join : plainSelect.getJoins()) {
-                String right = resolveFromItemName(join.getRightItem(), false);
-                if (currentLayer != null) {
-                    currentLayer.add("Joins", currentLeft + " " + resolveJoinType(join) + " " + right);
-                    if (join.getOnExpressions() != null) {
-                        for (Expression onExpression : join.getOnExpressions()) {
-                            currentLayer.add("Join_Conditions", onExpression.toString());
-                        }
+                if (join.getOnExpressions() != null) {
+                    for (Expression onExpression : join.getOnExpressions()) {
+                        onExpression.accept(localExprVisitor, context);
                     }
                 }
-                if (join.getRightItem() != null) {
-                    join.getRightItem().accept(fv, context);
-                }
-                currentLeft = right;
             }
         }
 
-        if (plainSelect.getGroupBy() != null && plainSelect.getGroupBy().getGroupByExpressionList() != null) {
-            ExpressionVisitorImpl groupExpr =new ExpressionVisitorImpl(restrictTablesColumns, conditionMapping);
-            GroupByVisitorImpl groupByVisitor = new GroupByVisitorImpl(groupExpr);
-            plainSelect.getGroupBy().accept(groupByVisitor, context);
-        }
-
-        if (plainSelect.getOrderByElements() != null) {
-            ExpressionVisitorImpl orderExpr =new ExpressionVisitorImpl(restrictTablesColumns, conditionMapping);
-            OrderByVisitorImpl orderByVisitor = new OrderByVisitorImpl(orderExpr);
-            for (OrderByElement ob : plainSelect.getOrderByElements()) {
-                ob.accept(orderByVisitor, context);
-            }
-        }
-
-        if (plainSelect.getHaving() != null && currentLayer != null) {
-            ExpressionVisitorImpl havingExpr = new ExpressionVisitorImpl(restrictTablesColumns, conditionMapping);
-            plainSelect.getHaving().accept(havingExpr, context);
-            currentLayer.add("HavingCriteria", plainSelect.getHaving().toString());
-        }
-
-        if (plainSelect.getLimit() != null && currentLayer != null) {
-            currentLayer.add("Limits", plainSelect.getLimit().toString());
-        }
-
-        if (plainSelect.getOffset() != null && currentLayer != null) {
-            currentLayer.add("Offsets", plainSelect.getOffset().toString());
+        if (plainSelect.getHaving() != null) {
+            plainSelect.getHaving().accept(localExprVisitor, context);
         }
 
         return currentLayer;
@@ -137,15 +105,19 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(ParenthesedSelect parenthesedSelect, S context) {
-        QueryLayer currentLayer = (QueryLayer) context;
-        if(parenthesedSelect.getAlias()!=null && currentLayer != null) {
-            Alias al = parenthesedSelect.getAlias();
-            currentLayer.add("Aliases", al.toString());
+
+        QueryLayer layer = (QueryLayer) context;
+
+        if (parenthesedSelect.getAlias() != null && layer != null) {
+            layer.add("Aliases", parenthesedSelect.getAlias().getName());
         }
         if (parenthesedSelect.getSelect() != null) {
-            parenthesedSelect.getSelect().accept(this, context);
+            parenthesedSelect.getSelect().accept(
+                    new StatementVisitorImpl(this, restrictTablesColumns,exv),
+                    context
+            );
         }
-        return currentLayer;
+        return layer;
     }
 
     @Override
@@ -155,27 +127,51 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(SetOperationList setOpList, S context) {
-        QueryLayer parentLayer=(QueryLayer)context;
-        QueryLayer subLayer=new QueryLayer();
 
-        if(parentLayer!=null){
+        QueryLayer parentLayer = (QueryLayer) context;
+        QueryLayer subLayer = new QueryLayer();
+
+        if (parentLayer != null) {
             parentLayer.subLayers.add(subLayer);
         }
-        if (setOpList != null && setOpList.getSelects() != null) {
+
+        if (setOpList.getSelects() != null) {
             for (Select select : setOpList.getSelects()) {
                 if (select != null) {
-                    select.accept(this, subLayer);
+                    select.accept(
+                            new StatementVisitorImpl(this, restrictTablesColumns,exv),
+                            subLayer
+                    );
                 }
             }
         }
+
         return subLayer;
     }
 
     @Override
     public <S> QueryLayer visit(WithItem<?> withItem, S context) {
-        return null;
-    }
 
+        QueryLayer parentLayer = (QueryLayer) context;
+        QueryLayer cteLayer = new QueryLayer();
+
+        if (parentLayer != null) {
+            parentLayer.subLayers.add(cteLayer);
+        }
+
+        if (withItem.getAlias() != null) {
+            cteLayer.add("CTE", withItem.getAlias().getName());
+        }
+
+        if (withItem.getSelect() != null) {
+            withItem.getSelect().accept(
+                    new StatementVisitorImpl(this, restrictTablesColumns, exv),
+                    cteLayer   // ✅ IMPORTANT CHANGE
+            );
+        }
+
+        return cteLayer;
+    }
     @Override
     public <S> QueryLayer visit(Values values, S context) {
         return null;

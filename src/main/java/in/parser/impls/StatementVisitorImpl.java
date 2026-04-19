@@ -21,7 +21,7 @@ import net.sf.jsqlparser.statement.grant.Grant;
 import net.sf.jsqlparser.statement.insert.*;
 import net.sf.jsqlparser.statement.merge.Merge;
 import net.sf.jsqlparser.statement.refresh.RefreshMaterializedViewStatement;
-import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.select.*;
 import net.sf.jsqlparser.statement.show.*;
 import net.sf.jsqlparser.statement.truncate.Truncate;
 import net.sf.jsqlparser.statement.update.*;
@@ -33,14 +33,15 @@ public class StatementVisitorImpl implements StatementVisitor<QueryLayer> {
     InsertVisitorImpl iv;
     UpdateVisitorImpl uv;
     DeleteVisitorImpl dv;
+    ExpressionVisitorImpl exv;
 
-    public StatementVisitorImpl(SelectVisitorImpl sv,RestrictTablesColumns restrictTablesColumns) {
-        this.sv=sv;
-        iv=new InsertVisitorImpl(sv,restrictTablesColumns);
-        uv=new UpdateVisitorImpl();
-        dv=new DeleteVisitorImpl();
+    public StatementVisitorImpl(SelectVisitorImpl sv, RestrictTablesColumns restrictTablesColumns, ExpressionVisitorImpl exv) {
+        this.sv = sv;
+        this.exv = exv;
+        iv = new InsertVisitorImpl(sv, restrictTablesColumns);
+        uv = new UpdateVisitorImpl();
+        dv = new DeleteVisitorImpl();
     }
-
     @Override
     public <S> QueryLayer visit(Analyze analyze, S context) {
         return null;
@@ -180,14 +181,66 @@ public class StatementVisitorImpl implements StatementVisitor<QueryLayer> {
         return null;
     }
 
-    @Override
-    public <S> QueryLayer visit(Select select, S context) {
-        if (select != null) {
-            select.accept(sv, context);
+//    @Override
+//    public <S> QueryLayer visit(Select select, S context) {
+//
+//        QueryLayer layer = (QueryLayer) context;
+//        if (select.getWithItemsList() != null) {
+//            for (WithItem<?> withItem : select.getWithItemsList()) {
+//                sv.visit(withItem, context);
+//            }
+//        }
+//        if (select.getPlainSelect() != null) {
+//            sv.visit(select.getPlainSelect(), context);
+//        }
+//        else if (select.getSetOperationList() != null) {
+//            sv.visit(select.getSetOperationList(), context);
+//        }
+//
+//        return layer;
+//    }
+@Override
+public <S> QueryLayer visit(Select select, S context) {
+
+    QueryLayer layer = (QueryLayer) context;
+
+    if (select.getWithItemsList() != null) {
+        for (WithItem<?> withItem : select.getWithItemsList()) {
+            sv.visit(withItem, context);
         }
-        return null;
+    }
+    if (select instanceof PlainSelect plainSelect) {
+        sv.visit(plainSelect, context);
+    }
+    else if (select instanceof SetOperationList setOpList) {
+        sv.visit(setOpList, context);
+    }
+    else if (select instanceof ParenthesedSelect parenthesedSelect) {
+        Select inner = parenthesedSelect.getSelect();
+        if (inner instanceof PlainSelect innerPlain) {
+            sv.visit(innerPlain, context);
+        }
+        else if (inner instanceof SetOperationList innerSetOp) {
+            sv.visit(innerSetOp, context);
+        }
+    }
+    else {
+        try {
+            PlainSelect ps = select.getPlainSelect();
+            if (ps != null) {
+                sv.visit(ps, context);
+            }
+        }
+        catch (ClassCastException e) {
+            SetOperationList sol = select.getSetOperationList();
+            if (sol != null) {
+                sv.visit(sol, context);
+            }
+        }
     }
 
+    return layer;
+}
     @Override
     public <S> QueryLayer visit(Upsert upsert, S context) {
         return null;
