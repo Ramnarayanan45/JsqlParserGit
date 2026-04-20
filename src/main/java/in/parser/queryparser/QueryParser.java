@@ -21,7 +21,6 @@ public class QueryParser {
         queryParser.loadConfig();
         queryParser.queryData();
     }
-
 //    public void restrictColumns(){
 //        int choice=getPreference();
 //        if(choice==1){
@@ -138,7 +137,6 @@ public class QueryParser {
 //        int choice=Input.getChoice("1 -> Restrict Tables/Columns\n2 -> Allow All Tables/Columns\n  -> ",1,2);
 //        return choice;
 //    }
-
     public String getQuery() {
         return Input.getLine("Enter the Query");
     }

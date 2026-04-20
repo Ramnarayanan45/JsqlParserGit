@@ -3,7 +3,6 @@ package in.parser.impls;
 import in.parser.queryparser.ConditionMapping;
 import in.parser.queryparser.QueryLayer;
 import in.parser.queryparser.RestrictTablesColumns;
-import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
@@ -68,24 +67,19 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(PlainSelect plainSelect, S context) {
-
         QueryLayer currentLayer = (QueryLayer) context;
         ExpressionVisitorImpl localExprVisitor = this.exv;
-
         if (plainSelect.getFromItem() != null && fv != null) {
             plainSelect.getFromItem().accept(fv, context);
         }
-
         if (plainSelect.getSelectItems() != null) {
             for (SelectItem<? extends Expression> i : plainSelect.getSelectItems()) {
                 i.accept(sv, context);
             }
         }
-
         if (plainSelect.getWhere() != null) {
             plainSelect.getWhere().accept(localExprVisitor, context);
         }
-
         if (plainSelect.getJoins() != null) {
             for (Join join : plainSelect.getJoins()) {
                 if (join.getOnExpressions() != null) {
@@ -95,11 +89,9 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
                 }
             }
         }
-
         if (plainSelect.getHaving() != null) {
             plainSelect.getHaving().accept(localExprVisitor, context);
         }
-
         return currentLayer;
     }
 
@@ -107,15 +99,11 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
     public <S> QueryLayer visit(ParenthesedSelect parenthesedSelect, S context) {
 
         QueryLayer layer = (QueryLayer) context;
-
         if (parenthesedSelect.getAlias() != null && layer != null) {
             layer.add("Aliases", parenthesedSelect.getAlias().getName());
         }
         if (parenthesedSelect.getSelect() != null) {
-            parenthesedSelect.getSelect().accept(
-                    new StatementVisitorImpl(this, restrictTablesColumns,exv),
-                    context
-            );
+            parenthesedSelect.getSelect().accept(new StatementVisitorImpl(this, restrictTablesColumns,exv), context);
         }
         return layer;
     }
@@ -164,10 +152,7 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
         }
 
         if (withItem.getSelect() != null) {
-            withItem.getSelect().accept(
-                    new StatementVisitorImpl(this, restrictTablesColumns, exv),
-                    cteLayer   // ✅ IMPORTANT CHANGE
-            );
+            withItem.getSelect().accept(new StatementVisitorImpl(this, restrictTablesColumns, exv), cteLayer);
         }
 
         return cteLayer;
