@@ -61,7 +61,7 @@ public class FromItemVisitorImpl implements FromItemVisitor<QueryLayer> {
             SelectVisitorImpl subSelect = new SelectVisitorImpl(null, subSelItem, subExpr);
             FromItemVisitorImpl subFrom = new FromItemVisitorImpl(subSelect,restrictTablesColumns);
             subSelect = new SelectVisitorImpl(subFrom, subSelItem, subExpr);
-            selectBody.getSelect().accept(new StatementVisitorImpl(subSelect,restrictTablesColumns,subExpr), subLayer);
+//            selectBody.getSelect().accept(new StatementVisitorImpl(subSelect,restrictTablesColumns,subExpr), subLayer);
         }
         return subLayer;
     }

@@ -28,19 +28,20 @@ import net.sf.jsqlparser.statement.upsert.Upsert;
 
 
 public class StatementVisitorImpl implements StatementVisitor<QueryLayer> {
-    SelectVisitorImpl sv;
+    SelectFromVisitorImpl sv;
     InsertVisitorImpl iv;
     UpdateVisitorImpl uv;
     DeleteVisitorImpl dv;
     ExpressionVisitorImpl exv;
 
-    public StatementVisitorImpl(SelectVisitorImpl sv, RestrictTablesColumns restrictTablesColumns, ExpressionVisitorImpl exv) {
-        this.sv = sv;
+    public StatementVisitorImpl(SelectFromVisitorImpl selectFromVisitor, RestrictTablesColumns restrictTablesColumns, ExpressionVisitorImpl exv) {
+        this.sv = selectFromVisitor;
         this.exv = exv;
         iv = new InsertVisitorImpl(sv, restrictTablesColumns);
         uv = new UpdateVisitorImpl();
         dv = new DeleteVisitorImpl();
     }
+
     @Override
     public <S> QueryLayer visit(Analyze analyze, S context) {
         return null;

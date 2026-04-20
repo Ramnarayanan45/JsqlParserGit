@@ -8,10 +8,10 @@ import net.sf.jsqlparser.statement.select.*;
 
 
 public class InsertVisitorImpl {
-    SelectVisitorImpl sv;
+    SelectFromVisitorImpl sv;
     RestrictTablesColumns restrictTablesColumns;
 
-    public InsertVisitorImpl(SelectVisitorImpl sv,RestrictTablesColumns restrictTablesColumns){
+    public InsertVisitorImpl(SelectFromVisitorImpl sv,RestrictTablesColumns restrictTablesColumns){
         this.sv=sv;
         this.restrictTablesColumns=restrictTablesColumns;
     }
@@ -86,7 +86,7 @@ public class InsertVisitorImpl {
     public <S> QueryLayer visit(Select select, S context){
         QueryLayer parent = (QueryLayer) context;
         QueryLayer subLayer = new QueryLayer();
-        select.accept(sv, subLayer);
+        select.accept((SelectVisitor) sv, subLayer);
         parent.subLayers.add(subLayer);
         return parent;
     }

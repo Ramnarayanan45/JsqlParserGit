@@ -49,36 +49,6 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
         return null;
     }
 
-//    @Override
-//    public <S> QueryLayer visit(Function function, S context) {
-//
-//        QueryLayer layer = (QueryLayer) context;
-//        if (function.getParameters() != null) {
-//            ExpressionList<Expression> params = (ExpressionList<Expression>) function.getParameters();
-//            for (int i = 0; i < params.size(); i++) {
-//                Expression param = params.get(i);
-//                if (param instanceof Function || param instanceof Column) {
-//                    param.accept(this, context);
-//                }
-//                else {
-//                    ExpressionVisitorAdapterImpl adapter = new ExpressionVisitorAdapterImpl();
-//                    param.accept(adapter);
-//                    if (adapter.getValue() != null) {
-//                        conditionMapping.addCondition(function.getName() + "_param", List.of(adapter.getValue()));
-//                        params.set(i, new JdbcParameter());
-//                    }
-//                    else {
-//                        param.accept(this, context);
-//                    }
-//                }
-//            }
-//        }
-//        if (layer != null) {
-//            layer.add("Functions", function.getName());
-//            layer.add("Function_Columns", function.toString());
-//        }
-//        return layer;
-//    }
     @Override
     public <S> QueryLayer visit(Function function, S context) {
 
@@ -750,8 +720,8 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
         }
 
         if (select.getSelect() != null) {
-            StatementVisitorImpl stmt = new StatementVisitorImpl(new SelectVisitorImpl(null,
-                    new SelectItemVisitorImpl(this), this), restrictTablesColumns,this);
+            StatementVisitorImpl stmt = new StatementVisitorImpl(new SelectFromVisitorImpl(new SelectItemVisitorImpl(this),restrictTablesColumns,this
+                   , conditionMapping), restrictTablesColumns,this);
             select.getSelect().accept(stmt, subLayer);
         }
         return parentLayer;
@@ -1137,9 +1107,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
         restrictTablesColumns.clearCurrentTables();
         ExpressionVisitorImpl subExpr = new ExpressionVisitorImpl(restrictTablesColumns,conditionMapping);
         SelectItemVisitorImpl subSelItem = new SelectItemVisitorImpl(subExpr);
-        SelectVisitorImpl subSelect = new SelectVisitorImpl(null, subSelItem, subExpr);
-        FromItemVisitorImpl subFrom = new FromItemVisitorImpl(subSelect, restrictTablesColumns);
-        subSelect = new SelectVisitorImpl(subFrom, subSelItem, subExpr);
+        SelectFromVisitorImpl subSelect = new SelectFromVisitorImpl(subSelItem,restrictTablesColumns, subExpr,conditionMapping);
         StatementVisitorImpl stmt = new StatementVisitorImpl(subSelect, restrictTablesColumns,this);
         select.accept(stmt, subLayer);
         return null;

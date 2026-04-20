@@ -102,7 +102,7 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
             layer.add("Aliases", parenthesedSelect.getAlias().getName());
         }
         if (parenthesedSelect.getSelect() != null) {
-            parenthesedSelect.getSelect().accept(new StatementVisitorImpl(this, restrictTablesColumns,exv), context);
+//            parenthesedSelect.getSelect().accept(new StatementVisitorImpl(this, restrictTablesColumns,exv), context);
         }
         return layer;
     }
@@ -125,10 +125,10 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
         if (setOpList.getSelects() != null) {
             for (Select select : setOpList.getSelects()) {
                 if (select != null) {
-                    select.accept(
-                            new StatementVisitorImpl(this, restrictTablesColumns,exv),
-                            subLayer
-                    );
+//                    select.accept(
+//                            new StatementVisitorImpl(this, restrictTablesColumns,exv),
+//                            subLayer
+//                    );
                 }
             }
         }
@@ -151,7 +151,7 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
         }
 
         if (withItem.getSelect() != null) {
-            withItem.getSelect().accept(new StatementVisitorImpl(this, restrictTablesColumns, exv), cteLayer);
+//            withItem.getSelect().accept(new StatementVisitorImpl(this, restrictTablesColumns, exv), cteLayer);
         }
 
         return cteLayer;
