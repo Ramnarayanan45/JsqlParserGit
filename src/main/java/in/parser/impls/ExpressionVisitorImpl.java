@@ -1074,7 +1074,6 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
         return (QueryLayer)context;
     }
 
-
     @Override
     public <S> QueryLayer visit(AllColumns allColumns, S context) {
         QueryLayer layer = (QueryLayer) context;
