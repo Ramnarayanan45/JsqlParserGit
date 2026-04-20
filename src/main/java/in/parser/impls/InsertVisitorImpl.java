@@ -86,7 +86,7 @@ public class InsertVisitorImpl {
     public <S> QueryLayer visit(Select select, S context){
         QueryLayer parent = (QueryLayer) context;
         QueryLayer subLayer = new QueryLayer();
-        select.accept((SelectVisitor) sv, subLayer);
+        select.accept((SelectVisitor<QueryLayer>) sv, subLayer);
         parent.subLayers.add(subLayer);
         return parent;
     }

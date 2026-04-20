@@ -114,7 +114,7 @@ public class SelectFromVisitorImpl implements SelectVisitor<QueryLayer>,FromItem
         if (setOperationList != null && setOperationList.getSelects() != null) {
             for (Select select : setOperationList.getSelects()) {
                 if (select != null) {
-                    select.accept((SelectVisitor) this, subLayer);
+                    select.accept((SelectVisitor<QueryLayer>) this, subLayer);
                 }
             }
         }

@@ -1,5 +1,6 @@
 package in.parser.queryparser;
 
+
 public class QueryNode<T> {
 
     String category;

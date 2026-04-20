@@ -446,7 +446,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
                     node = andNode.getLeftExpression();
                 }
                 Expression actualRight = node;
-                if (actualRight instanceof Select || actualRight instanceof ParenthesedSelect) {
+                if (actualRight instanceof Select) {
                     actualRight.accept(this, context);
                     inExpression.setRightExpression(actualRight);
                 } else if (actualRight instanceof ExpressionList<?> list) {

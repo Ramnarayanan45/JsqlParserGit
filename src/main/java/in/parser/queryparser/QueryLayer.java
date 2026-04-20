@@ -17,4 +17,5 @@ public class QueryLayer {
     public List<QueryNode<?>> getNodes(){
         return nodes;
     }
+    
 }
