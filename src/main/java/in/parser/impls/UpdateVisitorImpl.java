@@ -9,9 +9,15 @@ import net.sf.jsqlparser.statement.update.*;
 import java.util.*;
 
 public class UpdateVisitorImpl {
-    RestrictConfig restrictConfig =new RestrictConfig();
+    RestrictConfig restrictConfig;
     ParamGenerator paramGenerator;
-    ExpressionVisitorImpl exprVisitor = new ExpressionVisitorImpl(restrictConfig, paramGenerator);
+    ExpressionVisitorImpl exprVisitor;
+
+    public UpdateVisitorImpl(ExpressionVisitorImpl expressionVisitor){
+        this.exprVisitor=expressionVisitor;
+        paramGenerator=expressionVisitor.paramGenerator;
+        restrictConfig=expressionVisitor.restrictConfig;
+    }
 
     public QueryLayer handle(Update update, QueryLayer layer) {
         if (layer == null){

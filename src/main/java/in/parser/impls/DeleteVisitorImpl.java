@@ -8,9 +8,15 @@ import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.schema.Table;
 
 public class DeleteVisitorImpl {
-    RestrictConfig restrictConfig = new RestrictConfig();
+    RestrictConfig restrictConfig ;
     ParamGenerator paramGenerator;
-    ExpressionVisitorImpl exprVisitor = new ExpressionVisitorImpl(restrictConfig, paramGenerator);
+    ExpressionVisitorImpl exprVisitor;
+
+    public DeleteVisitorImpl(ExpressionVisitorImpl expressionVisitor){
+        this.exprVisitor=expressionVisitor;
+        this.restrictConfig=exprVisitor.restrictConfig;
+        this.paramGenerator=expressionVisitor.paramGenerator;
+    }
 
     public QueryLayer handle(Delete delete, QueryLayer layer) {
 

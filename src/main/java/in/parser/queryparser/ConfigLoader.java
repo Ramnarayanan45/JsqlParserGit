@@ -5,7 +5,8 @@ import java.util.Properties;
 
 public class ConfigLoader {
     RestrictConfig restrictConfig;
-    ConfigLoader(RestrictConfig restrictConfig){
+
+    public ConfigLoader(RestrictConfig restrictConfig){
         this.restrictConfig=restrictConfig;
     }
     public void loadConfig() {

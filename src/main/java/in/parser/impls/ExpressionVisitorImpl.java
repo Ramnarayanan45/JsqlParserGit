@@ -221,6 +221,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
     public <S> QueryLayer visit(XorExpression xorExpression, S context) {
         return null;
     }
+
     @Override
     public <S> QueryLayer visit(Between between, S context) {
 
@@ -265,10 +266,12 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
         return layer;
     }
+
     @Override
     public <S> QueryLayer visit(OverlapsCondition overlapsCondition, S context) {
         return null;
     }
+
     @Override
     public <S> QueryLayer visit(EqualsTo equalsTo, S context) {
 
@@ -429,6 +432,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
         }
         return layer;
     }
+
     @Override
     public <S> QueryLayer visit(InExpression inExpression, S context) {
         QueryLayer layer = (QueryLayer) context;

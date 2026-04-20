@@ -38,8 +38,8 @@ public class StatementVisitorImpl implements StatementVisitor<QueryLayer> {
         this.sv = selectFromVisitor;
         this.exv = exv;
         iv = new InsertVisitorImpl(sv, restrictConfig);
-        uv = new UpdateVisitorImpl();
-        dv = new DeleteVisitorImpl();
+        uv = new UpdateVisitorImpl(exv);
+        dv = new DeleteVisitorImpl(exv);
     }
 
     @Override
