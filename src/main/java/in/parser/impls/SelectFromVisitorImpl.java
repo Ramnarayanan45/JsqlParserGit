@@ -2,7 +2,7 @@ package in.parser.impls;
 
 import in.parser.queryparser.ConditionMapping;
 import in.parser.queryparser.QueryLayer;
-import in.parser.queryparser.RestrictTablesColumns;
+import in.parser.queryparser.RestrictConfig;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.piped.FromQuery;
@@ -10,13 +10,13 @@ import net.sf.jsqlparser.statement.select.*;
 
 public class SelectFromVisitorImpl implements SelectVisitor<QueryLayer>,FromItemVisitor<QueryLayer> {
 
-    RestrictTablesColumns restrictTablesColumns;
+    RestrictConfig restrictConfig;
     ExpressionVisitorImpl expressionVisitor;
     ConditionMapping conditionMapping;
     SelectItemVisitorImpl selectItemVisitor;
 
-    public SelectFromVisitorImpl(SelectItemVisitorImpl selectItemVisitor,RestrictTablesColumns restrictTablesColumns, ExpressionVisitorImpl expressionVisitor,ConditionMapping conditionMapping){
-        this.restrictTablesColumns=restrictTablesColumns;
+    public SelectFromVisitorImpl(SelectItemVisitorImpl selectItemVisitor, RestrictConfig restrictConfig, ExpressionVisitorImpl expressionVisitor, ConditionMapping conditionMapping){
+        this.restrictConfig = restrictConfig;
         this.expressionVisitor=expressionVisitor;
         this.conditionMapping=conditionMapping;
         this.selectItemVisitor=selectItemVisitor;
@@ -26,19 +26,19 @@ public class SelectFromVisitorImpl implements SelectVisitor<QueryLayer>,FromItem
     public <S> QueryLayer visit(Table tableName, S context) {
         QueryLayer layer = (QueryLayer) context;
         String actualTable = tableName.getName();
-        restrictTablesColumns.addCurrentTable(actualTable);
+        restrictConfig.addCurrentTable(actualTable);
         if (tableName.getAlias() != null) {
             String alias = tableName.getAlias().getName();
-            restrictTablesColumns.addAlias(alias, actualTable);
+            restrictConfig.addAlias(alias, actualTable);
             layer.add("Aliases", alias);
         }
 
-        if ((!restrictTablesColumns.getTables().stream().anyMatch(s -> s.equalsIgnoreCase(actualTable))) &&
-                (!restrictTablesColumns.getPrefixTables().stream().anyMatch(s -> actualTable.startsWith(s)))){
-            layer.add("Tables", actualTable);
+        if ((restrictConfig.getTables().stream().anyMatch(s -> s.equalsIgnoreCase(actualTable))) ||
+                (restrictConfig.getPrefixTables().stream().anyMatch(s -> actualTable.startsWith(s)))){
+            layer.add("RestrictTables", actualTable);
         }
         else {
-            layer.add("RestrictTables", actualTable);
+            layer.add("Tables", actualTable);
         }
 
         return layer;
@@ -61,16 +61,16 @@ public class SelectFromVisitorImpl implements SelectVisitor<QueryLayer>,FromItem
             layer.add("Aliases", parenthesedSelect.getAlias().getName());
         }
         if (parenthesedSelect.getSelect() != null) {
-            parenthesedSelect.getSelect().accept(new StatementVisitorImpl(this, restrictTablesColumns,expressionVisitor), context);
+            parenthesedSelect.getSelect().accept(new StatementVisitorImpl(this, restrictConfig,expressionVisitor), context);
         }
         return layer;
     }
 
     @Override
-    public QueryLayer visit(PlainSelect plainSelect, Object context) {
+    public <S> QueryLayer visit(PlainSelect plainSelect, S context) {
         QueryLayer currentLayer = (QueryLayer) context;
         ExpressionVisitorImpl localExprVisitor = this.expressionVisitor;
-        if (plainSelect.getFromItem() != null && (FromItemVisitor)this != null) {
+        if (plainSelect.getFromItem() != null) {
             plainSelect.getFromItem().accept(this, context);
         }
         if (plainSelect.getSelectItems() != null) {
@@ -98,12 +98,12 @@ public class SelectFromVisitorImpl implements SelectVisitor<QueryLayer>,FromItem
     }
 
     @Override
-    public QueryLayer visit(FromQuery fromQuery, Object context) {
+    public <S> QueryLayer visit(FromQuery fromQuery, S context) {
         return null;
     }
 
     @Override
-    public QueryLayer visit(SetOperationList setOperationList, Object context) {
+    public <S> QueryLayer visit(SetOperationList setOperationList, S context) {
         QueryLayer parentLayer=(QueryLayer)context;
         QueryLayer subLayer=new QueryLayer();
 
@@ -136,24 +136,24 @@ public class SelectFromVisitorImpl implements SelectVisitor<QueryLayer>,FromItem
         }
 
         if (withItem.getSelect() != null) {
-            withItem.getSelect().accept(new StatementVisitorImpl(this, restrictTablesColumns, expressionVisitor), cteLayer);
+            withItem.getSelect().accept(new StatementVisitorImpl(this, restrictConfig, expressionVisitor), cteLayer);
         }
 
         return cteLayer;
     }
 
     @Override
-    public QueryLayer visit(Values values, Object context) {
+    public <S> QueryLayer visit(Values values, S context) {
         return null;
     }
 
     @Override
-    public QueryLayer visit(LateralSubSelect lateralSubSelect, Object context) {
+    public <S> QueryLayer visit(LateralSubSelect lateralSubSelect, S context) {
         return null;
     }
 
     @Override
-    public QueryLayer visit(TableStatement tableStatement, Object context) {
+    public <S> QueryLayer visit(TableStatement tableStatement, S context) {
         return null;
     }
 

@@ -9,11 +9,11 @@ import net.sf.jsqlparser.statement.select.*;
 
 public class InsertVisitorImpl {
     SelectFromVisitorImpl sv;
-    RestrictTablesColumns restrictTablesColumns;
+    RestrictConfig restrictConfig;
 
-    public InsertVisitorImpl(SelectFromVisitorImpl sv,RestrictTablesColumns restrictTablesColumns){
+    public InsertVisitorImpl(SelectFromVisitorImpl sv, RestrictConfig restrictConfig){
         this.sv=sv;
-        this.restrictTablesColumns=restrictTablesColumns;
+        this.restrictConfig = restrictConfig;
     }
 
     public <S> QueryLayer visit(ExpressionList<Column> columns, Values values, S context) {
@@ -23,12 +23,12 @@ public class InsertVisitorImpl {
             int j=columns.size();
             ExpressionList<?> val=values.getExpressions();
             for (Column column : columns) {
-                if (!restrictTablesColumns.getColumns().stream().anyMatch(s -> s.getColumnName().equalsIgnoreCase(column.getColumnName()))) {
-                    String col = column.getColumnName();
-                    layer.add("Columns", col);
+                if (restrictConfig.getColumns().stream().anyMatch(s -> s.getColumnName().equalsIgnoreCase(column.getColumnName()))) {
+                    layer.add("RestrictColumns",column.getColumnName());
                 }
                 else{
-                    layer.add("RestrictColumns",column.getColumnName());
+                    String col = column.getColumnName();
+                    layer.add("Columns", col);
                 }
             }
             if(val.size()==j) {
@@ -50,7 +50,7 @@ public class InsertVisitorImpl {
 
     public <S> QueryLayer visit(Table tableName, S context){
         QueryLayer layer=(QueryLayer)context;
-        if (!restrictTablesColumns.getTables().stream().anyMatch(s -> s.equalsIgnoreCase(tableName.getName()))) {
+        if (!restrictConfig.getTables().stream().anyMatch(s -> s.equalsIgnoreCase(tableName.getName()))) {
             layer.add("Tables", tableName.getName());
             if (tableName.getAlias() != null) {
                 layer.add("Aliases", tableName.getAlias().getName());
@@ -64,7 +64,7 @@ public class InsertVisitorImpl {
     public <S> QueryLayer visit(ExpressionList<Column> column, S context){
         QueryLayer layer=(QueryLayer)context;
         for (Column col : column) {
-            if (!restrictTablesColumns.getColumns().stream().anyMatch(s -> s.getColumnName().equalsIgnoreCase(col.getColumnName()))) {
+            if (!restrictConfig.getColumns().stream().anyMatch(s -> s.getColumnName().equalsIgnoreCase(col.getColumnName()))) {
                 String columnName = col.getColumnName();
                 layer.add("Columns", columnName);
             }

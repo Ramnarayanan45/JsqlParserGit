@@ -1,7 +1,7 @@
 package in.parser.impls;
 
 import in.parser.queryparser.QueryLayer;
-import in.parser.queryparser.RestrictTablesColumns;
+import in.parser.queryparser.RestrictConfig;
 import net.sf.jsqlparser.statement.*;
 import net.sf.jsqlparser.statement.alter.*;
 import net.sf.jsqlparser.statement.alter.sequence.AlterSequence;
@@ -34,10 +34,10 @@ public class StatementVisitorImpl implements StatementVisitor<QueryLayer> {
     DeleteVisitorImpl dv;
     ExpressionVisitorImpl exv;
 
-    public StatementVisitorImpl(SelectFromVisitorImpl selectFromVisitor, RestrictTablesColumns restrictTablesColumns, ExpressionVisitorImpl exv) {
+    public StatementVisitorImpl(SelectFromVisitorImpl selectFromVisitor, RestrictConfig restrictConfig, ExpressionVisitorImpl exv) {
         this.sv = selectFromVisitor;
         this.exv = exv;
-        iv = new InsertVisitorImpl(sv, restrictTablesColumns);
+        iv = new InsertVisitorImpl(sv, restrictConfig);
         uv = new UpdateVisitorImpl();
         dv = new DeleteVisitorImpl();
     }

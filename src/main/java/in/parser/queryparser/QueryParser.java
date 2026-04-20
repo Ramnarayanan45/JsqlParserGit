@@ -12,7 +12,7 @@ public class QueryParser {
 
     SelectVisitorImpl mv;
     List<String> list = new ArrayList<>();
-    RestrictTablesColumns restrictTablesColumns=new RestrictTablesColumns();
+    RestrictConfig restrictConfig =new RestrictConfig();
     ConditionMapping conditionMapping = new ConditionMapping();
     Statement statement;
 
@@ -38,20 +38,20 @@ public class QueryParser {
 
     public void queryData() {
 
-        restrictTablesColumns.clearCurrentTables();
+        restrictConfig.clearCurrentTables();
         statement = getStatement(getQuery());
         QueryLayer root = new QueryLayer();
-        ExpressionVisitorImpl expr = new ExpressionVisitorImpl(restrictTablesColumns, conditionMapping);
+        ExpressionVisitorImpl expr = new ExpressionVisitorImpl(restrictConfig, conditionMapping);
         SelectItemVisitorImpl selItem = new SelectItemVisitorImpl(expr);
-        SelectFromVisitorImpl sel = new SelectFromVisitorImpl(selItem,restrictTablesColumns, expr,conditionMapping);
-        StatementVisitorImpl stmt = new StatementVisitorImpl(sel, restrictTablesColumns,expr);
+        SelectFromVisitorImpl sel = new SelectFromVisitorImpl(selItem, restrictConfig, expr,conditionMapping);
+        StatementVisitorImpl stmt = new StatementVisitorImpl(sel, restrictConfig,expr);
         statement.accept(stmt, root);
         if (hasRestriction(root)) {
             System.err.println("Access Denied: Restricted table/column used.");
         }
         else {
-//            printLayer(root, 1);
-            printValues();
+            printLayer(root, 1);
+//            printValues();
         }
     }
 
@@ -82,7 +82,7 @@ public class QueryParser {
             String tables = props.getProperty("restricted.tables");
             if (tables != null) {
                 for (String table : tables.split(",")) {
-                    restrictTablesColumns.setTableName(table.trim());
+                    restrictConfig.setTableName(table.trim());
                 }
             }
             String columns = props.getProperty("restricted.columns");
@@ -90,16 +90,14 @@ public class QueryParser {
                 for (String col : columns.split(",")) {
                     String[] parts = col.split("\\.");
                     if (parts.length == 2) {
-                        restrictTablesColumns.setColumnName(
-                                new TableName(parts[0].trim(), parts[1].trim(), "")
-                        );
+                        restrictConfig.setColumnName(new TableName(parts[0].trim(), parts[1].trim(), ""));
                     }
                 }
             }
             String prefixTables=props.getProperty("restricted.prefixTables");
             if(prefixTables!=null){
                 for(String prefix:prefixTables.split(",")){
-                    restrictTablesColumns.setTablePrefixName(prefix.trim());
+                    restrictConfig.setTablePrefixName(prefix.trim());
                 }
             }
         }
@@ -160,7 +158,7 @@ public class QueryParser {
 //                System.out.println("------------------------------------------------------");
 //                break;
 //            }
-//            restrictTablesColumns.setTableName(table);
+//            restrictConfig.setTableName(table);
 //        }
 //    }
 //
@@ -173,7 +171,7 @@ public class QueryParser {
 //            }
 //            String table=Input.getLine("Enter the Table Name");
 //            TableName tableName=new TableName(table,column,"");
-//            restrictTablesColumns.setColumnName(tableName);
+//            restrictConfig.setColumnName(tableName);
 //        }
 //    }
 //    public void controller() {

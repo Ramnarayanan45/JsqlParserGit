@@ -2,7 +2,7 @@ package in.parser.impls;
 
 import in.parser.queryparser.ConditionMapping;
 import in.parser.queryparser.QueryLayer;
-import in.parser.queryparser.RestrictTablesColumns;
+import in.parser.queryparser.RestrictConfig;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
@@ -14,7 +14,7 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
     FromItemVisitorImpl fv;
     SelectItemVisitorImpl sv;
     ExpressionVisitorImpl exv;
-    RestrictTablesColumns restrictTablesColumns;
+    RestrictConfig restrictConfig;
     ConditionMapping conditionMapping;
 
 
@@ -28,7 +28,7 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
         this.fv = fromVisitor;
         this.sv = selectItemVisitor;
         this.exv = exprVisitor;
-        restrictTablesColumns=exv.restrictTablesColumns;
+        restrictConfig =exv.restrictConfig;
         conditionMapping= exv.conditionMapping;
     }
 
@@ -102,7 +102,7 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
             layer.add("Aliases", parenthesedSelect.getAlias().getName());
         }
         if (parenthesedSelect.getSelect() != null) {
-//            parenthesedSelect.getSelect().accept(new StatementVisitorImpl(this, restrictTablesColumns,exv), context);
+//            parenthesedSelect.getSelect().accept(new StatementVisitorImpl(this, restrictConfig,exv), context);
         }
         return layer;
     }
@@ -126,7 +126,7 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
             for (Select select : setOpList.getSelects()) {
                 if (select != null) {
 //                    select.accept(
-//                            new StatementVisitorImpl(this, restrictTablesColumns,exv),
+//                            new StatementVisitorImpl(this, restrictConfig,exv),
 //                            subLayer
 //                    );
                 }
@@ -151,7 +151,7 @@ public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
         }
 
         if (withItem.getSelect() != null) {
-//            withItem.getSelect().accept(new StatementVisitorImpl(this, restrictTablesColumns, exv), cteLayer);
+//            withItem.getSelect().accept(new StatementVisitorImpl(this, restrictConfig, exv), cteLayer);
         }
 
         return cteLayer;

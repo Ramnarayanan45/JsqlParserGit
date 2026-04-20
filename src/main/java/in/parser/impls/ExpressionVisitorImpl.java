@@ -2,7 +2,7 @@ package in.parser.impls;
 
 import in.parser.queryparser.ConditionMapping;
 import in.parser.queryparser.QueryLayer;
-import in.parser.queryparser.RestrictTablesColumns;
+import in.parser.queryparser.RestrictConfig;
 import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.arithmetic.*;
 import net.sf.jsqlparser.expression.operators.conditional.*;
@@ -14,11 +14,11 @@ import java.util.*;
 
 public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
-    RestrictTablesColumns restrictTablesColumns;
+    RestrictConfig restrictConfig;
     ConditionMapping conditionMapping;
 
-    public ExpressionVisitorImpl(RestrictTablesColumns restrictTablesColumns, ConditionMapping conditionMapping) {
-        this.restrictTablesColumns = restrictTablesColumns;
+    public ExpressionVisitorImpl(RestrictConfig restrictConfig, ConditionMapping conditionMapping) {
+        this.restrictConfig = restrictConfig;
         this.conditionMapping = conditionMapping;
     }
 
@@ -720,8 +720,8 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
         }
 
         if (select.getSelect() != null) {
-            StatementVisitorImpl stmt = new StatementVisitorImpl(new SelectFromVisitorImpl(new SelectItemVisitorImpl(this),restrictTablesColumns,this
-                   , conditionMapping), restrictTablesColumns,this);
+            StatementVisitorImpl stmt = new StatementVisitorImpl(new SelectFromVisitorImpl(new SelectItemVisitorImpl(this), restrictConfig,this
+                   , conditionMapping), restrictConfig,this);
             select.getSelect().accept(stmt, subLayer);
         }
         return parentLayer;
@@ -737,15 +737,15 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
             tableName = column.getTable().getName();
         }
         if (tableName == null || tableName.isBlank()) {
-            if (restrictTablesColumns.getCurrentTables().size() == 1) {
-                tableName = restrictTablesColumns.getCurrentTables().get(0);
+            if (restrictConfig.getCurrentTables().size() == 1) {
+                tableName = restrictConfig.getCurrentTables().get(0);
             }
             else {
                 tableName = "UNKNOWN";
             }
         }
         else {
-            tableName = restrictTablesColumns.resolveTable(tableName);
+            tableName = restrictConfig.resolveTable(tableName);
         }
         String fullName = tableName + "." + colName;
         if (layer != null) {
@@ -1104,11 +1104,11 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
         if (parentLayer != null) {
             parentLayer.subLayers.add(subLayer);
         }
-        restrictTablesColumns.clearCurrentTables();
-        ExpressionVisitorImpl subExpr = new ExpressionVisitorImpl(restrictTablesColumns,conditionMapping);
+        restrictConfig.clearCurrentTables();
+        ExpressionVisitorImpl subExpr = new ExpressionVisitorImpl(restrictConfig,conditionMapping);
         SelectItemVisitorImpl subSelItem = new SelectItemVisitorImpl(subExpr);
-        SelectFromVisitorImpl subSelect = new SelectFromVisitorImpl(subSelItem,restrictTablesColumns, subExpr,conditionMapping);
-        StatementVisitorImpl stmt = new StatementVisitorImpl(subSelect, restrictTablesColumns,this);
+        SelectFromVisitorImpl subSelect = new SelectFromVisitorImpl(subSelItem, restrictConfig, subExpr,conditionMapping);
+        StatementVisitorImpl stmt = new StatementVisitorImpl(subSelect, restrictConfig,this);
         select.accept(stmt, subLayer);
         return null;
     }
