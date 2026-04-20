@@ -5,7 +5,7 @@ public class RestrictConfig {
 
     List<String> prefixTables=new ArrayList<>();
     List<String> tables=new ArrayList<>();
-    List<TableName> columns=new ArrayList<>();
+    List<TableContext> columns=new ArrayList<>();
     Map<String, String> aliasToTable = new HashMap<>();
     List<String> currentTables = new ArrayList<>();
 
@@ -33,7 +33,7 @@ public class RestrictConfig {
         return tables;
     }
 
-    public List<TableName> getColumns(){
+    public List<TableContext> getColumns(){
         return columns;
     }
 
@@ -41,7 +41,7 @@ public class RestrictConfig {
         tables.add(table);
     }
 
-    public void setColumnName(TableName column){
+    public void setColumnName(TableContext column){
         columns.add(column);
     }
 
@@ -52,5 +52,4 @@ public class RestrictConfig {
     public List<String> getPrefixTables(){
         return prefixTables;
     }
-
 }

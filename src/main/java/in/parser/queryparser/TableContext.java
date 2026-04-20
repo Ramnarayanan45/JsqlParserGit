@@ -1,11 +1,11 @@
 package in.parser.queryparser;
 
-public class TableName {
+public class TableContext {
     String tableName;
     String columnName;
     String aliasName;
 
-    public TableName(String tableName,String columnName,String aliasName){
+    public TableContext(String tableName, String columnName, String aliasName){
         this.tableName=tableName;
         this.columnName=columnName;
         this.aliasName=aliasName;

@@ -28,7 +28,7 @@ public class ConfigLoader {
                 for (String col : columns.split(",")) {
                     String[] parts = col.split("\\.");
                     if (parts.length == 2) {
-                        restrictConfig.setColumnName(new TableName(parts[0].trim(), parts[1].trim(), ""));
+                        restrictConfig.setColumnName(new TableContext(parts[0].trim(), parts[1].trim(), ""));
                     }
                 }
             }
