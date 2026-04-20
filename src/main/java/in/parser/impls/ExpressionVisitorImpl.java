@@ -49,6 +49,36 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
         return null;
     }
 
+//    @Override
+//    public <S> QueryLayer visit(Function function, S context) {
+//
+//        QueryLayer layer = (QueryLayer) context;
+//        if (function.getParameters() != null) {
+//            ExpressionList<Expression> params = (ExpressionList<Expression>) function.getParameters();
+//            for (int i = 0; i < params.size(); i++) {
+//                Expression param = params.get(i);
+//                if (param instanceof Function || param instanceof Column) {
+//                    param.accept(this, context);
+//                }
+//                else {
+//                    ExpressionVisitorAdapterImpl adapter = new ExpressionVisitorAdapterImpl();
+//                    param.accept(adapter);
+//                    if (adapter.getValue() != null) {
+//                        conditionMapping.addCondition(function.getName() + "_param", List.of(adapter.getValue()));
+//                        params.set(i, new JdbcParameter());
+//                    }
+//                    else {
+//                        param.accept(this, context);
+//                    }
+//                }
+//            }
+//        }
+//        if (layer != null) {
+//            layer.add("Functions", function.getName());
+//            layer.add("Function_Columns", function.toString());
+//        }
+//        return layer;
+//    }
     @Override
     public <S> QueryLayer visit(Function function, S context) {
 
@@ -57,29 +87,31 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
             ExpressionList<Expression> params = (ExpressionList<Expression>) function.getParameters();
             for (int i = 0; i < params.size(); i++) {
                 Expression param = params.get(i);
-                if (param instanceof Function || param instanceof Column) {
-                    param.accept(this, context);
+                if (param instanceof StringValue sv) {
+                    conditionMapping.addCondition("literal", List.of(sv.getValue()));
+                    params.set(i, new JdbcParameter());
+                }
+                else if (param instanceof LongValue lv) {
+                    conditionMapping.addCondition("literal", List.of(lv.getValue()));
+                    params.set(i, new JdbcParameter());
+                }
+                else if (param instanceof DoubleValue dv) {
+                    conditionMapping.addCondition("literal", List.of(dv.getValue()));
+                    params.set(i, new JdbcParameter());
                 }
                 else {
-                    ExpressionVisitorAdapterImpl adapter = new ExpressionVisitorAdapterImpl();
-                    param.accept(adapter);
-                    if (adapter.getValue() != null) {
-                        conditionMapping.addCondition(function.getName() + "_param", List.of(adapter.getValue()));
-                        params.set(i, new JdbcParameter());
-                    }
-                    else {
-                        param.accept(this, context);
-                    }
+                    param.accept(this, context);
                 }
             }
         }
+
         if (layer != null) {
             layer.add("Functions", function.getName());
             layer.add("Function_Columns", function.toString());
         }
+
         return layer;
     }
-
     @Override
     public <S> QueryLayer visit(SignedExpression signedExpression, S context) {
         return null;
@@ -183,9 +215,22 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(Subtraction subtraction, S context) {
+
+        QueryLayer layer = (QueryLayer) context;
         subtraction.getLeftExpression().accept(this, context);
-        subtraction.getRightExpression().accept(this, context);
-        return (QueryLayer) context;
+        Expression right = subtraction.getRightExpression();
+        if (right instanceof LongValue lv) {
+            conditionMapping.addCondition("literal", List.of(lv.getValue()));
+            subtraction.setRightExpression(new JdbcParameter());
+        }
+        else if (right instanceof DoubleValue dv) {
+            conditionMapping.addCondition("literal", List.of(dv.getValue()));
+            subtraction.setRightExpression(new JdbcParameter());
+        }
+        else {
+            right.accept(this, context);
+        }
+        return layer;
     }
 
     @Override
@@ -414,7 +459,6 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
         }
         return layer;
     }
-
     @Override
     public <S> QueryLayer visit(InExpression inExpression, S context) {
         QueryLayer layer = (QueryLayer) context;
@@ -432,13 +476,12 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
                     node = andNode.getLeftExpression();
                 }
                 Expression actualRight = node;
-                if (actualRight instanceof Select) {
+                if (actualRight instanceof Select || actualRight instanceof ParenthesedSelect) {
                     actualRight.accept(this, context);
                     inExpression.setRightExpression(actualRight);
-                }
-                else if (actualRight instanceof ExpressionList<?> list) {
+                } else if (actualRight instanceof ExpressionList<?> list) {
                     List<Object> val = new ArrayList<>();
-                    ExpressionList<JdbcParameter> params = new ExpressionList<>();
+                    ParenthesedExpressionList<JdbcParameter> params = new ParenthesedExpressionList<>();
                     for (Expression exp : list) {
                         ExpressionVisitorAdapterImpl ev = new ExpressionVisitorAdapterImpl();
                         exp.accept(ev);
@@ -447,8 +490,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
                     }
                     conditionMapping.addCondition(columnName, val);
                     inExpression.setRightExpression(params);
-                }
-                else {
+                } else {
                     actualRight.accept(this, context);
                 }
                 for (Expression trailing : trailingConditions) {
@@ -460,13 +502,15 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
             }
             else if (right instanceof ExpressionList<?> list) {
                 List<Object> val = new ArrayList<>();
+                ParenthesedExpressionList<JdbcParameter> params = new ParenthesedExpressionList<>();
                 for (Expression exp : list) {
                     ExpressionVisitorAdapterImpl expr = new ExpressionVisitorAdapterImpl();
                     exp.accept(expr);
                     val.add(expr.getValue());
+                    params.add(new JdbcParameter());
                 }
                 conditionMapping.addCondition(columnName, val);
-                inExpression.setRightExpression(new JdbcParameter());
+                inExpression.setRightExpression(params);
             }
         }
         if (layer != null) {

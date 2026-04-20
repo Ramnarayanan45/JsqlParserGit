@@ -21,6 +21,115 @@ public class QueryParser {
         queryParser.loadConfig();
         queryParser.queryData();
     }
+
+    public String getQuery() {
+        return Input.getLine("Enter the Query");
+    }
+
+    public Statement getStatement(String query) {
+        try {
+            return CCJSqlParserUtil.parse(query);
+        }
+        catch (JSQLParserException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
+    public void queryData() {
+
+        restrictTablesColumns.clearCurrentTables();
+        statement = getStatement(getQuery());
+        QueryLayer root = new QueryLayer();
+        ExpressionVisitorImpl expr = new ExpressionVisitorImpl(restrictTablesColumns, conditionMapping);
+        SelectItemVisitorImpl selItem = new SelectItemVisitorImpl(expr);
+        SelectVisitorImpl sel = new SelectVisitorImpl(null, selItem, expr);
+        FromItemVisitorImpl from = new FromItemVisitorImpl(sel, restrictTablesColumns);
+        sel = new SelectVisitorImpl(from, selItem, expr);
+        StatementVisitorImpl stmt = new StatementVisitorImpl(sel, restrictTablesColumns,expr);
+        statement.accept(stmt, root);
+        if (hasRestriction(root)) {
+            System.err.println("Access Denied: Restricted table/column used.");
+        }
+        else {
+//            printLayer(root, 1);
+            printValues();
+        }
+    }
+
+    public boolean hasRestriction(QueryLayer layer) {
+
+        for (QueryNode<?> node : layer.getNodes()) {
+            if (node.getCategory().equals("RestrictTables") || node.getCategory().equals("RestrictColumns")) {
+                return true;
+            }
+        }
+        for (QueryLayer sub : layer.subLayers) {
+            if (hasRestriction(sub)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void loadConfig() {
+        Properties props = new Properties();
+
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream("restriction-config.properties")) {
+            if (input == null) {
+                System.out.println("Config file not found in resources!");
+                return;
+            }
+            props.load(input);
+            String tables = props.getProperty("restricted.tables");
+            if (tables != null) {
+                for (String table : tables.split(",")) {
+                    restrictTablesColumns.setTableName(table.trim());
+                }
+            }
+            String columns = props.getProperty("restricted.columns");
+            if (columns != null) {
+                for (String col : columns.split(",")) {
+                    String[] parts = col.split("\\.");
+                    if (parts.length == 2) {
+                        restrictTablesColumns.setColumnName(
+                                new TableName(parts[0].trim(), parts[1].trim(), "")
+                        );
+                    }
+                }
+            }
+            String prefixTables=props.getProperty("restricted.prefixTables");
+            if(prefixTables!=null){
+                for(String prefix:prefixTables.split(",")){
+                    restrictTablesColumns.setTablePrefixName(prefix.trim());
+                }
+            }
+        }
+        catch (Exception e) {
+            System.out.println("Error loading config: " + e.getMessage());
+        }
+    }
+
+    public void printLayer(QueryLayer layer, int level) {
+        System.out.println("\nLevel " + level);
+        for (QueryNode<?> node : layer.getNodes()) {
+                System.out.println(node.getCategory() + " -> " + node.getName());
+        }
+        for (QueryLayer sub : layer.subLayers) {
+            printLayer(sub, level + 1);
+        }
+    }
+
+    public void printValues(){
+        List<ConditionClass<?>> values=conditionMapping.getConditionsList();
+            System.out.print("\nQuery : ");
+            System.out.println(statement);
+            System.out.println("\nValues : ");
+            for (ConditionClass<?> c : values) {
+                System.out.println(c.getColumnName() + " -> " + c.getValue());
+        }
+    }
+}
 //    public void restrictColumns(){
 //        int choice=getPreference();
 //        if(choice==1){
@@ -137,111 +246,3 @@ public class QueryParser {
 //        int choice=Input.getChoice("1 -> Restrict Tables/Columns\n2 -> Allow All Tables/Columns\n  -> ",1,2);
 //        return choice;
 //    }
-    public String getQuery() {
-        return Input.getLine("Enter the Query");
-    }
-
-    public Statement getStatement(String query) {
-        try {
-            return CCJSqlParserUtil.parse(query);
-        }
-        catch (JSQLParserException e) {
-            System.out.println(e.getMessage());
-        }
-        return null;
-    }
-
-    public void queryData() {
-
-        restrictTablesColumns.clearCurrentTables();
-        statement = getStatement(getQuery());
-        QueryLayer root = new QueryLayer();
-        ExpressionVisitorImpl expr = new ExpressionVisitorImpl(restrictTablesColumns, conditionMapping);
-        SelectItemVisitorImpl selItem = new SelectItemVisitorImpl(expr);
-        SelectVisitorImpl sel = new SelectVisitorImpl(null, selItem, expr);
-        FromItemVisitorImpl from = new FromItemVisitorImpl(sel, restrictTablesColumns);
-        sel = new SelectVisitorImpl(from, selItem, expr);
-        StatementVisitorImpl stmt = new StatementVisitorImpl(sel, restrictTablesColumns,expr);
-        statement.accept(stmt, root);
-        if (hasRestriction(root)) {
-            System.err.println("Access Denied: Restricted table/column used.");
-        }
-        else {
-//            printLayer(root, 1);
-            printValues();
-        }
-    }
-
-    public boolean hasRestriction(QueryLayer layer) {
-
-        for (QueryNode<?> node : layer.getNodes()) {
-            if (node.getCategory().equals("RestrictTables") || node.getCategory().equals("RestrictColumns")) {
-                return true;
-            }
-        }
-        for (QueryLayer sub : layer.subLayers) {
-            if (hasRestriction(sub)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void loadConfig() {
-        Properties props = new Properties();
-
-        try (InputStream input = getClass().getClassLoader().getResourceAsStream("restriction-config.properties")) {
-            if (input == null) {
-                System.out.println("Config file not found in resources!");
-                return;
-            }
-            props.load(input);
-            String tables = props.getProperty("restricted.tables");
-            if (tables != null) {
-                for (String table : tables.split(",")) {
-                    restrictTablesColumns.setTableName(table.trim());
-                }
-            }
-            String columns = props.getProperty("restricted.columns");
-            if (columns != null) {
-                for (String col : columns.split(",")) {
-                    String[] parts = col.split("\\.");
-                    if (parts.length == 2) {
-                        restrictTablesColumns.setColumnName(
-                                new TableName(parts[0].trim(), parts[1].trim(), "")
-                        );
-                    }
-                }
-            }
-            String prefixTables=props.getProperty("restricted.prefixTables");
-            if(prefixTables!=null){
-                for(String prefix:prefixTables.split(",")){
-                    restrictTablesColumns.setTablePrefixName(prefix.trim());
-                }
-            }
-        }
-        catch (Exception e) {
-            System.out.println("Error loading config: " + e.getMessage());
-        }
-    }
-
-    public void printLayer(QueryLayer layer, int level) {
-        System.out.println("\nLevel " + level);
-        for (QueryNode<?> node : layer.getNodes()) {
-                System.out.println(node.getCategory() + " -> " + node.getName());
-        }
-        for (QueryLayer sub : layer.subLayers) {
-            printLayer(sub, level + 1);
-        }
-    }
-
-    public void printValues(){
-        List<ConditionClass<?>> values=conditionMapping.getConditionsList();
-            System.out.print("\nQuery : ");
-            System.out.println(statement);
-            System.out.println("\nValues : ");
-            for (ConditionClass<?> c : values) {
-                System.out.println(c.getColumnName() + " -> " + c.getValue());
-        }
-    }
-}

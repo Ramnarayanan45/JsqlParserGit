@@ -9,7 +9,6 @@ import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.piped.FromQuery;
 import net.sf.jsqlparser.statement.select.*;
 
-
 public class SelectVisitorImpl implements SelectVisitor<QueryLayer> {
 
     FromItemVisitorImpl fv;
