@@ -169,7 +169,7 @@ public class QueryParser {
             System.err.println("Access Denied: Restricted table/column used.");
         }
         else {
-            printLayer(root, 1);
+//            printLayer(root, 1);
             printValues();
         }
     }
