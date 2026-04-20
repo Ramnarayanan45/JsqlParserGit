@@ -10,8 +10,6 @@ import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.*;
 import net.sf.jsqlparser.statement.piped.FromQuery;
 import net.sf.jsqlparser.statement.select.*;
-
-import javax.management.Query;
 import java.util.*;
 
 public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
