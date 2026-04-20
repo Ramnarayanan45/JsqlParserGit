@@ -1,7 +1,7 @@
 package in.parser.queryparser;
 import java.util.*;
 
-public class RestrictConfig {
+public class RestrictionConfiguration {
 
     List<String> prefixTables=new ArrayList<>();
     List<String> tables=new ArrayList<>();

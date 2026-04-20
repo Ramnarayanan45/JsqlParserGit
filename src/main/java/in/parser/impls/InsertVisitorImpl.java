@@ -9,11 +9,11 @@ import net.sf.jsqlparser.statement.select.*;
 
 public class InsertVisitorImpl {
     SelectFromVisitorImpl sv;
-    RestrictConfig restrictConfig;
+    RestrictionConfiguration restrictionConfiguration;
 
-    public InsertVisitorImpl(SelectFromVisitorImpl sv, RestrictConfig restrictConfig){
+    public InsertVisitorImpl(SelectFromVisitorImpl sv, RestrictionConfiguration restrictionConfiguration){
         this.sv=sv;
-        this.restrictConfig = restrictConfig;
+        this.restrictionConfiguration = restrictionConfiguration;
     }
 
     public <S> QueryLayer visit(ExpressionList<Column> columns, Values values, S context) {
@@ -23,7 +23,7 @@ public class InsertVisitorImpl {
             int j=columns.size();
             ExpressionList<?> val=values.getExpressions();
             for (Column column : columns) {
-                if (restrictConfig.getColumns().stream().anyMatch(s -> s.getColumnName().equalsIgnoreCase(column.getColumnName()))) {
+                if (restrictionConfiguration.getColumns().stream().anyMatch(s -> s.getColumnName().equalsIgnoreCase(column.getColumnName()))) {
                     layer.add("RestrictColumns",column.getColumnName());
                 }
                 else{
@@ -50,7 +50,7 @@ public class InsertVisitorImpl {
 
     public <S> QueryLayer visit(Table tableName, S context){
         QueryLayer layer=(QueryLayer)context;
-        if (restrictConfig.getTables().stream().anyMatch(s -> s.equalsIgnoreCase(tableName.getName()))) {
+        if (restrictionConfiguration.getTables().stream().anyMatch(s -> s.equalsIgnoreCase(tableName.getName()))) {
             layer.add("RestrictTables",tableName.getName());
         }
         else{
@@ -65,7 +65,7 @@ public class InsertVisitorImpl {
     public <S> QueryLayer visit(ExpressionList<Column> column, S context){
         QueryLayer layer=(QueryLayer)context;
         for (Column col : column) {
-            if (restrictConfig.getColumns().stream().anyMatch(s -> s.getColumnName().equalsIgnoreCase(col.getColumnName()))) {
+            if (restrictionConfiguration.getColumns().stream().anyMatch(s -> s.getColumnName().equalsIgnoreCase(col.getColumnName()))) {
                 layer.add("RestrictColumns",col.getColumnName());
             }
             else{

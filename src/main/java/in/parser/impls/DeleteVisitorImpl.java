@@ -2,19 +2,19 @@ package in.parser.impls;
 
 import in.parser.queryparser.ParamGenerator;
 import in.parser.queryparser.QueryLayer;
-import in.parser.queryparser.RestrictConfig;
+import in.parser.queryparser.RestrictionConfiguration;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.schema.Table;
 
 public class DeleteVisitorImpl {
-    RestrictConfig restrictConfig ;
+    RestrictionConfiguration restrictionConfiguration;
     ParamGenerator paramGenerator;
     ExpressionVisitorImpl exprVisitor;
 
     public DeleteVisitorImpl(ExpressionVisitorImpl expressionVisitor){
         this.exprVisitor=expressionVisitor;
-        this.restrictConfig=exprVisitor.restrictConfig;
+        this.restrictionConfiguration =exprVisitor.restrictionConfiguration;
         this.paramGenerator=expressionVisitor.paramGenerator;
     }
 

@@ -2,7 +2,7 @@ package in.parser.impls;
 
 import in.parser.queryparser.ParamGenerator;
 import in.parser.queryparser.QueryLayer;
-import in.parser.queryparser.RestrictConfig;
+import in.parser.queryparser.RestrictionConfiguration;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.piped.FromQuery;
@@ -10,13 +10,13 @@ import net.sf.jsqlparser.statement.select.*;
 
 public class SelectFromVisitorImpl implements SelectVisitor<QueryLayer>,FromItemVisitor<QueryLayer> {
 
-    RestrictConfig restrictConfig;
+    RestrictionConfiguration restrictionConfiguration;
     ExpressionVisitorImpl expressionVisitor;
     ParamGenerator paramGenerator;
     SelectItemVisitorImpl selectItemVisitor;
 
-    public SelectFromVisitorImpl(SelectItemVisitorImpl selectItemVisitor, RestrictConfig restrictConfig, ExpressionVisitorImpl expressionVisitor, ParamGenerator paramGenerator){
-        this.restrictConfig = restrictConfig;
+    public SelectFromVisitorImpl(SelectItemVisitorImpl selectItemVisitor, RestrictionConfiguration restrictionConfiguration, ExpressionVisitorImpl expressionVisitor, ParamGenerator paramGenerator){
+        this.restrictionConfiguration = restrictionConfiguration;
         this.expressionVisitor=expressionVisitor;
         this.paramGenerator = paramGenerator;
         this.selectItemVisitor=selectItemVisitor;
@@ -26,15 +26,15 @@ public class SelectFromVisitorImpl implements SelectVisitor<QueryLayer>,FromItem
     public <S> QueryLayer visit(Table tableName, S context) {
         QueryLayer layer = (QueryLayer) context;
         String actualTable = tableName.getName();
-        restrictConfig.addCurrentTable(actualTable);
+        restrictionConfiguration.addCurrentTable(actualTable);
         if (tableName.getAlias() != null) {
             String alias = tableName.getAlias().getName();
-            restrictConfig.addAlias(alias, actualTable);
+            restrictionConfiguration.addAlias(alias, actualTable);
             layer.add("Aliases", alias);
         }
 
-        if ((restrictConfig.getTables().stream().anyMatch(s -> s.equalsIgnoreCase(actualTable))) ||
-                (restrictConfig.getPrefixTables().stream().anyMatch(s -> actualTable.startsWith(s)))){
+        if ((restrictionConfiguration.getTables().stream().anyMatch(s -> s.equalsIgnoreCase(actualTable))) ||
+                (restrictionConfiguration.getPrefixTables().stream().anyMatch(s -> actualTable.startsWith(s)))){
             layer.add("RestrictTables", actualTable);
         }
         else {
@@ -61,7 +61,7 @@ public class SelectFromVisitorImpl implements SelectVisitor<QueryLayer>,FromItem
             layer.add("Aliases", parenthesedSelect.getAlias().getName());
         }
         if (parenthesedSelect.getSelect() != null) {
-            parenthesedSelect.getSelect().accept(new StatementVisitorImpl(this, restrictConfig,expressionVisitor), context);
+            parenthesedSelect.getSelect().accept(new StatementVisitorImpl(this, restrictionConfiguration,expressionVisitor), context);
         }
         return layer;
     }
@@ -136,7 +136,7 @@ public class SelectFromVisitorImpl implements SelectVisitor<QueryLayer>,FromItem
         }
 
         if (withItem.getSelect() != null) {
-            withItem.getSelect().accept(new StatementVisitorImpl(this, restrictConfig, expressionVisitor), cteLayer);
+            withItem.getSelect().accept(new StatementVisitorImpl(this, restrictionConfiguration, expressionVisitor), cteLayer);
         }
 
         return cteLayer;

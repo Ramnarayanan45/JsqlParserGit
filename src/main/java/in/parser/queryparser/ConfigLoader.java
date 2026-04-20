@@ -4,10 +4,10 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class ConfigLoader {
-    RestrictConfig restrictConfig;
+    RestrictionConfiguration restrictionConfiguration;
 
-    public ConfigLoader(RestrictConfig restrictConfig){
-        this.restrictConfig=restrictConfig;
+    public ConfigLoader(RestrictionConfiguration restrictionConfiguration){
+        this.restrictionConfiguration = restrictionConfiguration;
     }
     public void loadConfig() {
         Properties props = new Properties();
@@ -21,7 +21,7 @@ public class ConfigLoader {
             String tables = props.getProperty("restricted.tables");
             if (tables != null) {
                 for (String table : tables.split(",")) {
-                    restrictConfig.setTableName(table.trim());
+                    restrictionConfiguration.setTableName(table.trim());
                 }
             }
             String columns = props.getProperty("restricted.columns");
@@ -29,14 +29,14 @@ public class ConfigLoader {
                 for (String col : columns.split(",")) {
                     String[] parts = col.split("\\.");
                     if (parts.length == 2) {
-                        restrictConfig.setColumnName(new TableContext(parts[0].trim(), parts[1].trim(), ""));
+                        restrictionConfiguration.setColumnName(new TableContext(parts[0].trim(), parts[1].trim(), ""));
                     }
                 }
             }
             String prefixTables=props.getProperty("restricted.prefixTables");
             if(prefixTables!=null){
                 for(String prefix:prefixTables.split(",")){
-                    restrictConfig.setTablePrefixName(prefix.trim());
+                    restrictionConfiguration.setTablePrefixName(prefix.trim());
                 }
             }
         }

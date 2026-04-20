@@ -2,21 +2,21 @@ package in.parser.impls;
 
 import in.parser.queryparser.ParamGenerator;
 import in.parser.queryparser.QueryLayer;
-import in.parser.queryparser.RestrictConfig;
+import in.parser.queryparser.RestrictionConfiguration;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.update.*;
 import java.util.*;
 
 public class UpdateVisitorImpl {
-    RestrictConfig restrictConfig;
+    RestrictionConfiguration restrictionConfiguration;
     ParamGenerator paramGenerator;
     ExpressionVisitorImpl exprVisitor;
 
     public UpdateVisitorImpl(ExpressionVisitorImpl expressionVisitor){
         this.exprVisitor=expressionVisitor;
         paramGenerator=expressionVisitor.paramGenerator;
-        restrictConfig=expressionVisitor.restrictConfig;
+        restrictionConfiguration =expressionVisitor.restrictionConfiguration;
     }
 
     public QueryLayer handle(Update update, QueryLayer layer) {

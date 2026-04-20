@@ -1,5 +1,7 @@
 package in.parser.queryparser;
 
+import in.parser.exceptions.QueryExceptionHandler;
+import in.parser.exceptions.QueryParsingException;
 import in.parser.impls.*;
 import in.parser.util.Input;
 import net.sf.jsqlparser.JSQLParserException;
@@ -10,13 +12,13 @@ import java.util.*;
 
 public class QueryParser {
 
-    RestrictConfig restrictConfig =new RestrictConfig();
+    RestrictionConfiguration restrictionConfiguration =new RestrictionConfiguration();
     ParamGenerator paramGenerator = new ParamGenerator();
     Statement statement;
 
     public static void main(String[] args) {
         QueryParser queryParser = new QueryParser();
-        ConfigLoader configLoader=new ConfigLoader(queryParser.restrictConfig);
+        ConfigLoader configLoader=new ConfigLoader(queryParser.restrictionConfiguration);
         configLoader.loadConfig();
         queryParser.queryData();
     }
@@ -30,27 +32,30 @@ public class QueryParser {
             return CCJSqlParserUtil.parse(query);
         }
         catch (JSQLParserException e) {
-            System.out.println(e.getMessage());
+            throw new QueryParsingException("Failed to parse the SQL query. Syntax might be invalid.", e);
         }
-        return null;
     }
 
     public void queryData() {
 
-        restrictConfig.clearCurrentTables();
-        statement = getStatement(getQuery());
-        QueryLayer root = new QueryLayer();
-        ExpressionVisitorImpl expr = new ExpressionVisitorImpl(restrictConfig, paramGenerator);
-        SelectItemVisitorImpl selItem = new SelectItemVisitorImpl(expr);
-        SelectFromVisitorImpl sel = new SelectFromVisitorImpl(selItem, restrictConfig, expr, paramGenerator);
-        StatementVisitorImpl stmt = new StatementVisitorImpl(sel, restrictConfig,expr);
-        statement.accept(stmt, root);
-        if (hasRestriction(root)) {
-            System.err.println("Access Denied: Restricted table/column used.");
+        restrictionConfiguration.clearCurrentTables();
+        try {
+            statement = getStatement(getQuery());
+            QueryLayer root = new QueryLayer();
+            ExpressionVisitorImpl expr = new ExpressionVisitorImpl(restrictionConfiguration, paramGenerator);
+            SelectItemVisitorImpl selItem = new SelectItemVisitorImpl(expr);
+            SelectFromVisitorImpl sel = new SelectFromVisitorImpl(selItem, restrictionConfiguration, expr, paramGenerator);
+            StatementVisitorImpl stmt = new StatementVisitorImpl(sel, restrictionConfiguration, expr);
+            statement.accept(stmt, root);
+            if (hasRestriction(root)) {
+                System.err.println("Access Denied: Restricted table/column used.");
+            } else {
+                printLayer(root, 1);
+                printValues();
+            }
         }
-        else {
-            printLayer(root, 1);
-            printValues();
+        catch(Exception e){
+            QueryExceptionHandler.handle(e);
         }
     }
 
