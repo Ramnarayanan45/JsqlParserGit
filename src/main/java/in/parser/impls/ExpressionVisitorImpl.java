@@ -10,6 +10,8 @@ import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.*;
 import net.sf.jsqlparser.statement.piped.FromQuery;
 import net.sf.jsqlparser.statement.select.*;
+
+import javax.management.Query;
 import java.util.*;
 
 public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
@@ -36,17 +38,17 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(BitwiseRightShift bitwiseRightShift, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(BitwiseLeftShift bitwiseLeftShift, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(NullValue nullValue, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
@@ -84,22 +86,22 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
     }
     @Override
     public <S> QueryLayer visit(SignedExpression signedExpression, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(JdbcParameter jdbcParameter, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(JdbcNamedParameter jdbcNamedParameter, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(DoubleValue doubleValue, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
@@ -113,7 +115,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(HexValue hexValue, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
@@ -154,7 +156,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(BooleanValue booleanValue, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
@@ -173,7 +175,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(IntegerDivision integerDivision, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
@@ -219,7 +221,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(XorExpression xorExpression, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
@@ -269,7 +271,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(OverlapsCondition overlapsCondition, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
@@ -495,12 +497,12 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(IncludesExpression includesExpression, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(ExcludesExpression excludesExpression, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
@@ -552,12 +554,12 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(IsBooleanExpression isBooleanExpression, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(IsUnknownExpression isUnknownExpression, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
@@ -700,17 +702,17 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(DoubleAnd doubleAnd, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(Contains contains, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(ContainedBy containedBy, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
@@ -810,12 +812,12 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(MemberOfExpression memberOfExpression, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(AnyComparisonExpression anyComparisonExpression, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
@@ -847,47 +849,47 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(BitwiseAnd bitwiseAnd, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(BitwiseOr bitwiseOr, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(BitwiseXor bitwiseXor, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(CastExpression castExpression, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(Modulo modulo, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(AnalyticExpression analyticExpression, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(ExtractExpression extractExpression, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(IntervalExpression intervalExpression, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(OracleHierarchicalExpression hierarchicalExpression, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
@@ -915,32 +917,32 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(JsonExpression jsonExpression, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(JsonOperator jsonOperator, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(UserVariable userVariable, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(NumericBind numericBind, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(KeepExpression keepExpression, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(MySQLGroupConcat groupConcat, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
@@ -952,32 +954,32 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
                 }
             }
         }
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(RowConstructor<? extends Expression> rowConstructor, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(RowGetExpression rowGetExpression, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(OracleHint hint, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(TimeKeyExpression timeKeyExpression, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(DateTimeLiteralExpression dateTimeLiteralExpression, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
@@ -1009,67 +1011,67 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(NextValExpression nextValExpression, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(CollateExpression collateExpression, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(SimilarToExpression similarToExpression, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(ArrayExpression arrayExpression, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(ArrayConstructor arrayConstructor, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(VariableAssignment variableAssignment, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(XMLSerializeExpr xmlSerializeExpr, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(TimezoneExpression timezoneExpression, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(JsonAggregateFunction jsonAggregateFunction, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(JsonFunction jsonFunction, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(ConnectByRootOperator connectByRootOperator, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(ConnectByPriorOperator connectByPriorOperator, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(OracleNamedFunctionParameter oracleNamedFunctionParameter, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
 
@@ -1090,27 +1092,27 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
     @Override
     public <S> QueryLayer visit(FunctionAllColumns functionColumns, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(AllTableColumns allTableColumns, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(AllValue allValue, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(IsDistinctExpression isDistinctExpression, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
     public <S> QueryLayer visit(GeometryDistance geometryDistance, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override
@@ -1128,12 +1130,12 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
         SelectFromVisitorImpl subSelect = new SelectFromVisitorImpl(subSelItem, restrictionConfiguration, subExpr, paramGenerator);
         StatementVisitorImpl stmt = new StatementVisitorImpl(subSelect, restrictionConfiguration,this);
         select.accept(stmt, subLayer);
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(TranscodingFunction transcodingFunction, S context) {
-        return null;
+        return (QueryLayer)context;
     }
 
     @Override

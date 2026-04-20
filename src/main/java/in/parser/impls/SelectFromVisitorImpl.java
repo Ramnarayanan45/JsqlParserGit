@@ -46,12 +46,12 @@ public class SelectFromVisitorImpl implements SelectVisitor<QueryLayer>,FromItem
 
     @Override
     public <S> QueryLayer visit(TableFunction tableFunction, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public QueryLayer visit(ParenthesedFromItem parenthesedFromItem, Object context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
@@ -99,7 +99,7 @@ public class SelectFromVisitorImpl implements SelectVisitor<QueryLayer>,FromItem
 
     @Override
     public <S> QueryLayer visit(FromQuery fromQuery, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
@@ -144,17 +144,17 @@ public class SelectFromVisitorImpl implements SelectVisitor<QueryLayer>,FromItem
 
     @Override
     public <S> QueryLayer visit(Values values, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(LateralSubSelect lateralSubSelect, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
     public <S> QueryLayer visit(TableStatement tableStatement, S context) {
-        return null;
+        return (QueryLayer) context;
     }
 
     @Override
