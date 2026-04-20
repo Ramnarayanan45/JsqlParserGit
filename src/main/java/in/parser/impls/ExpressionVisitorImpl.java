@@ -1,6 +1,6 @@
 package in.parser.impls;
 
-import in.parser.queryparser.ConditionMapping;
+import in.parser.queryparser.ParamGenerator;
 import in.parser.queryparser.QueryLayer;
 import in.parser.queryparser.RestrictConfig;
 import net.sf.jsqlparser.expression.*;
@@ -15,11 +15,11 @@ import java.util.*;
 public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
     RestrictConfig restrictConfig;
-    ConditionMapping conditionMapping;
+    ParamGenerator paramGenerator;
 
-    public ExpressionVisitorImpl(RestrictConfig restrictConfig, ConditionMapping conditionMapping) {
+    public ExpressionVisitorImpl(RestrictConfig restrictConfig, ParamGenerator paramGenerator) {
         this.restrictConfig = restrictConfig;
-        this.conditionMapping = conditionMapping;
+        this.paramGenerator = paramGenerator;
     }
 
     public String getColumnName(Column column) {
@@ -58,15 +58,15 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
             for (int i = 0; i < params.size(); i++) {
                 Expression param = params.get(i);
                 if (param instanceof StringValue sv) {
-                    conditionMapping.addCondition("literal", List.of(sv.getValue()));
+                    paramGenerator.addParam("literal", List.of(sv.getValue()));
                     params.set(i, new JdbcParameter());
                 }
                 else if (param instanceof LongValue lv) {
-                    conditionMapping.addCondition("literal", List.of(lv.getValue()));
+                    paramGenerator.addParam("literal", List.of(lv.getValue()));
                     params.set(i, new JdbcParameter());
                 }
                 else if (param instanceof DoubleValue dv) {
-                    conditionMapping.addCondition("literal", List.of(dv.getValue()));
+                    paramGenerator.addParam("literal", List.of(dv.getValue()));
                     params.set(i, new JdbcParameter());
                 }
                 else {
@@ -190,11 +190,11 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
         subtraction.getLeftExpression().accept(this, context);
         Expression right = subtraction.getRightExpression();
         if (right instanceof LongValue lv) {
-            conditionMapping.addCondition("literal", List.of(lv.getValue()));
+            paramGenerator.addParam("literal", List.of(lv.getValue()));
             subtraction.setRightExpression(new JdbcParameter());
         }
         else if (right instanceof DoubleValue dv) {
-            conditionMapping.addCondition("literal", List.of(dv.getValue()));
+            paramGenerator.addParam("literal", List.of(dv.getValue()));
             subtraction.setRightExpression(new JdbcParameter());
         }
         else {
@@ -245,7 +245,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
                 List<Object> val = new ArrayList<>();
                 val.add(startVisitor.getValue());
                 val.add(endVisitor.getValue());
-                conditionMapping.addCondition(columnName, val);
+                paramGenerator.addParam(columnName, val);
                 between.setBetweenExpressionStart(new JdbcParameter());
                 between.setBetweenExpressionEnd(new JdbcParameter());
             }
@@ -317,7 +317,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
             }
 
             if (!val.isEmpty()) {
-                conditionMapping.addCondition(columnName, val);
+                paramGenerator.addParam(columnName, val);
             }
         }
         else {
@@ -327,7 +327,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
                 right.accept(rightAdapter);
                 if (rightAdapter.getValue() != null) {
                     equalsTo.setRightExpression(new JdbcParameter());
-                    conditionMapping.addCondition("literal", List.of(rightAdapter.getValue()));
+                    paramGenerator.addParam("literal", List.of(rightAdapter.getValue()));
                 }
             }
             else if (right instanceof Column column) {
@@ -337,7 +337,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
                     String columnName = getColumnName(column);
                     List<Object> val = new ArrayList<>();
                     val.add(leftAdapter.getValue());
-                    conditionMapping.addCondition(columnName, val);
+                    paramGenerator.addParam(columnName, val);
                     equalsTo.setLeftExpression(new JdbcParameter());
                 }
             }
@@ -347,7 +347,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
                 right.accept(rightAdapter);
                 if (rightAdapter.getValue() != null) {
                     equalsTo.setRightExpression(new JdbcParameter());
-                    conditionMapping.addCondition(left.toString(), List.of(rightAdapter.getValue()));
+                    paramGenerator.addParam(left.toString(), List.of(rightAdapter.getValue()));
                 }
             }
             else {
@@ -357,11 +357,11 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
                 right.accept(rightAdapter);
                 if (leftAdapter.getValue() != null) {
                     equalsTo.setLeftExpression(new JdbcParameter());
-                    conditionMapping.addCondition("literal", List.of(leftAdapter.getValue()));
+                    paramGenerator.addParam("literal", List.of(leftAdapter.getValue()));
                 }
                 if (rightAdapter.getValue() != null) {
                     equalsTo.setRightExpression(new JdbcParameter());
-                    conditionMapping.addCondition("literal", List.of(rightAdapter.getValue()));
+                    paramGenerator.addParam("literal", List.of(rightAdapter.getValue()));
                 }
             }
         }
@@ -387,7 +387,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
             right.accept(expr);
             List<Object> val = new ArrayList<>();
             val.add(expr.getValue());
-            conditionMapping.addCondition(columnName, val);
+            paramGenerator.addParam(columnName, val);
             greaterThan.setRightExpression(new JdbcParameter());
         }
 
@@ -411,7 +411,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
                 right.accept(expr);
                 List<Object> val = new ArrayList<>();
                 val.add(expr.getValue());
-                conditionMapping.addCondition(columnName, val);
+                paramGenerator.addParam(columnName, val);
                 greaterThanEquals.setRightExpression(new JdbcParameter());
             }
             else if (right instanceof Select) {
@@ -458,7 +458,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
                         val.add(ev.getValue());
                         params.add(new JdbcParameter());
                     }
-                    conditionMapping.addCondition(columnName, val);
+                    paramGenerator.addParam(columnName, val);
                     inExpression.setRightExpression(params);
                 } else {
                     actualRight.accept(this, context);
@@ -479,7 +479,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
                     val.add(expr.getValue());
                     params.add(new JdbcParameter());
                 }
-                conditionMapping.addCondition(columnName, val);
+                paramGenerator.addParam(columnName, val);
                 inExpression.setRightExpression(params);
             }
         }
@@ -518,7 +518,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
                     if (exp instanceof Column column) {
                         String columnName = getColumnName(column);
                         if(set.add(columnName)) {
-                            conditionMapping.addCondition(columnName, List.of(value));
+                            paramGenerator.addParam(columnName, List.of(value));
                         }
                     }
                 }
@@ -569,7 +569,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
             if (expr.getValue() != null) {
                 List<Object> val = new ArrayList<>();
                 val.add(expr.getValue());
-                conditionMapping.addCondition(columnName, val);
+                paramGenerator.addParam(columnName, val);
                 likeExpression.setRightExpression(new JdbcParameter());
             }
             else {
@@ -589,7 +589,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
             ExpressionVisitorAdapterImpl rightAdapter = new ExpressionVisitorAdapterImpl();
             right.accept(rightAdapter);
             if (rightAdapter.getValue() != null) {
-                conditionMapping.addCondition("literal", List.of(rightAdapter.getValue()));
+                paramGenerator.addParam("literal", List.of(rightAdapter.getValue()));
                 likeExpression.setRightExpression(new JdbcParameter());
             }
             else {
@@ -600,7 +600,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
             ExpressionVisitorAdapterImpl leftAdapter = new ExpressionVisitorAdapterImpl();
             left.accept(leftAdapter);
             if (leftAdapter.getValue() != null) {
-                conditionMapping.addCondition("literal", List.of(leftAdapter.getValue()));
+                paramGenerator.addParam("literal", List.of(leftAdapter.getValue()));
                 likeExpression.setLeftExpression(new JdbcParameter());
             }
             right.accept(this, context);
@@ -623,7 +623,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
             right.accept(expr);
             List<Object> val=new ArrayList<>();
             val.add(expr.getValue());
-            conditionMapping.addCondition(columnName, val);
+            paramGenerator.addParam(columnName, val);
             minorThan.setRightExpression(new JdbcParameter());
         }
         if (layer != null) {
@@ -647,7 +647,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
             List<Object> val=new ArrayList<>();
             val.add(expr.getValue());
-            conditionMapping.addCondition(columnName, val);
+            paramGenerator.addParam(columnName, val);
             minorThanEquals.setRightExpression(new JdbcParameter());
         }
         if (layer != null) {
@@ -674,7 +674,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
                 right.accept(expr);
                 List<Object> val = new ArrayList<>();
                 val.add(expr.getValue());
-                conditionMapping.addCondition(columnName, val);
+                paramGenerator.addParam(columnName, val);
 
                 notEqualsTo.setRightExpression(new JdbcParameter());
 
@@ -721,7 +721,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
 
         if (select.getSelect() != null) {
             StatementVisitorImpl stmt = new StatementVisitorImpl(new SelectFromVisitorImpl(new SelectItemVisitorImpl(this), restrictConfig,this
-                   , conditionMapping), restrictConfig,this);
+                   , paramGenerator), restrictConfig,this);
             select.getSelect().accept(stmt, subLayer);
         }
         return parentLayer;
@@ -822,7 +822,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
                 for (Expression exp : list) {
                     if (exp instanceof Column column) {
                         String columnName = getColumnName(column);
-                        conditionMapping.addCondition(columnName, val);
+                        paramGenerator.addParam(columnName, val);
                     }
                 }
             }
@@ -892,7 +892,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
             if (adapter.getValue() != null) {
                 List<Object> val = new ArrayList<>();
                 val.add(adapter.getValue());
-                conditionMapping.addCondition(columnName, val);
+                paramGenerator.addParam(columnName, val);
                 regExpMatchOperator.setRightExpression(new JdbcParameter());
             }
         }
@@ -981,7 +981,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
             right.accept(expr);
             List<Object> val = new ArrayList<>();
             val.add(expr.getValue());
-            conditionMapping.addCondition(columnName, val);
+            paramGenerator.addParam(columnName, val);
 
             notExpression.setExpression(new JdbcParameter());
 
@@ -1105,9 +1105,9 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
             parentLayer.subLayers.add(subLayer);
         }
         restrictConfig.clearCurrentTables();
-        ExpressionVisitorImpl subExpr = new ExpressionVisitorImpl(restrictConfig,conditionMapping);
+        ExpressionVisitorImpl subExpr = new ExpressionVisitorImpl(restrictConfig, paramGenerator);
         SelectItemVisitorImpl subSelItem = new SelectItemVisitorImpl(subExpr);
-        SelectFromVisitorImpl subSelect = new SelectFromVisitorImpl(subSelItem, restrictConfig, subExpr,conditionMapping);
+        SelectFromVisitorImpl subSelect = new SelectFromVisitorImpl(subSelItem, restrictConfig, subExpr, paramGenerator);
         StatementVisitorImpl stmt = new StatementVisitorImpl(subSelect, restrictConfig,this);
         select.accept(stmt, subLayer);
         return null;

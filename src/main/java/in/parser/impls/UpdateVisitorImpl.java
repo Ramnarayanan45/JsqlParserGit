@@ -1,6 +1,6 @@
 package in.parser.impls;
 
-import in.parser.queryparser.ConditionMapping;
+import in.parser.queryparser.ParamGenerator;
 import in.parser.queryparser.QueryLayer;
 import in.parser.queryparser.RestrictConfig;
 import net.sf.jsqlparser.expression.Expression;
@@ -10,8 +10,8 @@ import java.util.*;
 
 public class UpdateVisitorImpl {
     RestrictConfig restrictConfig =new RestrictConfig();
-    ConditionMapping conditionMapping;
-    ExpressionVisitorImpl exprVisitor = new ExpressionVisitorImpl(restrictConfig,conditionMapping);
+    ParamGenerator paramGenerator;
+    ExpressionVisitorImpl exprVisitor = new ExpressionVisitorImpl(restrictConfig, paramGenerator);
 
     public QueryLayer handle(Update update, QueryLayer layer) {
         if (layer == null){

@@ -1,16 +1,38 @@
 package in.parser.queryparser;
 
-import java.util.*;
 
-public class ConditionMapping {
+public class ConditionMapping<T> {
+    String tableName;
+    String columnName;
+    T value;
 
-    List<ConditionClass<?>> conditionsList = new ArrayList<>();
-
-    public void addCondition(String column, List<Object> value) {
-        conditionsList.add(new ConditionClass<>(column, value));
+    public ConditionMapping(String columnName, T value){
+        this.columnName=columnName;
+        this.value=value;
     }
 
-    public List<ConditionClass<?>> getConditionsList() {
-        return conditionsList;
+    public String getTableName(){
+        return tableName;
     }
+
+    public void setTableName(String tableName){
+        this.tableName=tableName;
+    }
+
+    public String getColumnName(){
+        return columnName;
+    }
+
+    public void setColumnName(String columnName){
+        this.columnName=columnName;
+    }
+
+    public T getValue(){
+        return value;
+    }
+
+    public void setValue(T value){
+        this.value=value;
+    }
+
 }

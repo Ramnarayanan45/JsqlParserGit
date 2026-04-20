@@ -1,6 +1,6 @@
 package in.parser.impls;
 
-import in.parser.queryparser.ConditionMapping;
+import in.parser.queryparser.ParamGenerator;
 import in.parser.queryparser.QueryLayer;
 import in.parser.queryparser.RestrictConfig;
 import net.sf.jsqlparser.expression.Expression;
@@ -12,13 +12,13 @@ public class SelectFromVisitorImpl implements SelectVisitor<QueryLayer>,FromItem
 
     RestrictConfig restrictConfig;
     ExpressionVisitorImpl expressionVisitor;
-    ConditionMapping conditionMapping;
+    ParamGenerator paramGenerator;
     SelectItemVisitorImpl selectItemVisitor;
 
-    public SelectFromVisitorImpl(SelectItemVisitorImpl selectItemVisitor, RestrictConfig restrictConfig, ExpressionVisitorImpl expressionVisitor, ConditionMapping conditionMapping){
+    public SelectFromVisitorImpl(SelectItemVisitorImpl selectItemVisitor, RestrictConfig restrictConfig, ExpressionVisitorImpl expressionVisitor, ParamGenerator paramGenerator){
         this.restrictConfig = restrictConfig;
         this.expressionVisitor=expressionVisitor;
-        this.conditionMapping=conditionMapping;
+        this.paramGenerator = paramGenerator;
         this.selectItemVisitor=selectItemVisitor;
     }
 
