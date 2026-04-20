@@ -752,8 +752,15 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
             tableName = restrictConfig.resolveTable(tableName);
         }
         String fullName = tableName + "." + colName;
+        String finalTableName = tableName;
+        boolean isRestricted = restrictConfig.getColumns().stream().anyMatch(tc -> tc.getTableName().equalsIgnoreCase(finalTableName) && tc.getColumnName().equalsIgnoreCase(colName));
         if (layer != null) {
-            layer.add("Columns", fullName);
+            if (isRestricted) {
+                layer.add("RestrictColumns", fullName);
+            }
+            else {
+                layer.add("Columns", fullName);
+            }
         }
         return layer;
     }
@@ -1065,11 +1072,18 @@ public class ExpressionVisitorImpl implements ExpressionVisitor<QueryLayer> {
         return null;
     }
 
+
     @Override
     public <S> QueryLayer visit(AllColumns allColumns, S context) {
         QueryLayer layer = (QueryLayer) context;
         if (layer != null) {
-            layer.add("Columns", "*");
+            boolean isRestricted = restrictConfig.getColumns().stream().anyMatch(tc -> restrictConfig.getCurrentTables().stream().anyMatch(t -> t.equalsIgnoreCase(tc.getTableName())));
+            if (isRestricted) {
+                layer.add("RestrictColumns", "*");
+            }
+            else {
+                layer.add("Columns", "*");
+            }
         }
         return layer;
     }
